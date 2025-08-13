@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.myContainer {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8;
+}
+
+.containerBox {
+    @apply bg-gray-100 rounded-lg shadow hover:shadow-lg transition p-4 mt-10;
+}
+
+.imageInBox {
+    @apply w-full h-48 object-cover rounded;
+}
+
+.headText {
+    @apply mt-4 text-xl font-semibold text-gray-700;
+}
+
+.desText {
+    @apply mt-2 text-gray-700;
+}
+
+.priceText {
+    @apply mt-2 font-bold text-black;
+}
+
