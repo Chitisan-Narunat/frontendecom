@@ -27,3 +27,50 @@
     @apply mt-2 font-bold text-black;
 }
 
+.modalproductbg {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
+}
+
+.modalProduct {
+    @apply bg-white rounded-lg shadow-lg p-6 w-[900px] h-[700px] relative
+}
+
+.closebutton {
+    @apply absolute top-3 right-3 text-gray-600 hover:text-black
+}
+
+.h2product {
+    @apply text-3xl font-bold mb-4 text-start ml-8 mt-3
+}
+
+.h3product {
+    @apply text-xl font-sans mb-4 text-start ml-8 -mt-3
+}
+
+.divproduct {
+    @apply w-[400px] h-[400px] flex flex-col items-center justify-center relative 
+}
+
+.productpic {
+    @apply w-full h-[500px] object-contain rounded-lg -mt-9 ml-10
+}
+
+.ulpicbutton {
+    @apply flex flex-row space-x-[355px] absolute left-3 top-1/2 -translate-y-1/2
+}
+
+.picbutton {
+    @apply bg-gray-700 text-white p-2 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-600
+}
+
+.ulabbutton{
+    @apply flex flex-row space-x-5 absolute bottom-[40px] left-[700px]
+}
+
+.abbutton {
+    @apply bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white
+}
+
+.h1price {
+    @apply font-bold text-2xl ml-11 mt-16
+}

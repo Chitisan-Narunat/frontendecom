@@ -1,7 +1,12 @@
 import Navbar from '/src/components/Navbar';
 import React, { useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { getImageById } from "/Styles/product-images";
+import { jwtDecode } from 'jwt-decode';
 import { IoClose } from 'react-icons/io5';
+
+
 import Sb1 from "/src/assets/Theatre_Alu_Hero.png"
 import Sb2 from "/src/assets/Devialet_Dione_Opera_12.png.webp"
 import Sb3 from "/src/assets/Devialet_Dione_1.png.webp"
@@ -20,15 +25,18 @@ import Sb15 from "/src/assets/พื้นหลัง th-b-series-soundbar-hw-b
 import Sb16 from "/src/assets/พื้นหลัง th-q-series-soundbar-hw-q600f-hw-q600f-xt-546175706 ถูกเอาออก.png"
 
 
-
 function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, onMultibeamClick, onEnchant900Click, onSubClick, onBarClick, onPano3Click, onXIOClick, onArcUltraClick, onAmbeoMiniClick, onSB300Click, onHW700FCLick, onHW650FClick, onHW600FClick}) {
     
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCartRendered, setIsCartRendered] = useState(false);
     const [isCartVisible, setIsCartVisible] = useState(false);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMenuRendered, setIsMenuRendered] = useState(false);
     const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
     const [isHestonOpen, setIsHestonOpen] = useState(false);
     const [isDioneLuxOpen, setIsDioneLuxOpen] = useState(false);
@@ -46,11 +54,6 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
     const [isHW700FOpen, setIsHW700FOpen] = useState(false);
     const [isHW650FOpen, setIsHW650FOpen] = useState(false);
     const [isHW600FOpen, setIsHW600FOpen] = useState(false);
-
-
-
-
-
 
 
     onHestonClick = (() => setIsHestonOpen(true));
@@ -71,10 +74,6 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
     onHW600FClick = (() => setIsHW600FOpen(true));
 
 
-
-
-
-
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const images = [
@@ -84,15 +83,15 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
     ];
 
     const images2 = [
-        "/src/assets/Devialet_Dione_Opera_12.png.webp",
-        "/src/assets/Devialet_Dione_Opera_03_1.png.jpeg",
-        "/src/assets/Devialet_Dione_Opera_09_1.png.jpeg"
+        "/src/assets/พื้นหลัง Devialet_Dione_Opera_12 ถูกเอาออก.png",
+        "/src/assets/พื้นหลัง Devialet_Dione_Opera_03_1 ถูกเอาออก.png",
+        "/src/assets/พื้นหลัง Devialet_Dione_Opera_09_1 ถูกเอาออก.png"
     ];
 
     const images3 = [
-        "/src/assets/Packshot-Beosound-Stage-Gold-Tone-0228-Perspective-1200x1200px.png",
-        "/src/assets/Beosound-stage-front-Gold-Tone.png",
-        "/src/assets/Beosound_Stage-tvfront-Gold-Tone.png"
+        "/src/assets/พื้นหลัง Devialet_Dione_1 ถูกเอาออก.png",
+        "/src/assets/พื้นหลัง Devialet_Dione_3 ถูกเอาออก.png",
+        "/src/assets/พื้นหลัง Devialet_Dione_3_2 ถูกเอาออก.png"
     ];
 
     const images4 = [
@@ -175,7 +174,7 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
 
     const navigatE = useNavigate();
     const goToHome = () =>{
-      navigatE('/'); 
+      navigatE('/pages/Home'); 
     }
 
     const Navigate2 = useNavigate();
@@ -186,6 +185,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
     const navigate5 = useNavigate();
     const goToHeadphones = () =>{
         navigate5('/pages/Headphones')
+    }
+
+    const navigate7 = useNavigate();
+    const goToAddress = () =>{
+        navigate7('/pages/Address')
     }
 
     useEffect(() => {
@@ -207,13 +211,311 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
             setTimeout(() => setIsCartRendered(false), 300);
         }
     }, [isCartOpen]);
+
+      const [form , setForm] = useState({
+        email: '',
+        passWord: '',
+    });
+
+    const [form2 , setForm2] = useState({
+        email: '',
+        userName: '',
+        passWord: '',
+    });
+
+    const [message , setMessage] = useState();
+    const handleChange = (e) =>{
+        setForm({
+            ...form,
+            [e.target.name]:e.target.value,
+        });
+    };
+
+    const [message2] = useState();
+    const handleChange2 = (e) =>{
+        setForm2({
+            ...form2,
+            [e.target.name]:e.target.value,
+        });
+    };
+
+    const handleLogin = async(e) =>{
+        e.preventDefault();
+        try{
+            const API = await axios.get('http://localhost:5283/api/Authen/Login',{
+                params: {
+                    Email: form.email,
+                    PassWord: form.passWord
+                }
+            });
+
+            setMessage(API.data)
+            console.log("API Response:", API.data);
+
+            if (API.data.token) {
+                localStorage.setItem("token", API.data.token);
+                const decoded = jwtDecode(API.data.token);
+                const role = decoded.Roles
+                if (role === "Member"){
+                    alert('Login Completed')
+                    window.location.reload();
+                }
+                else if (role === "Admin"){
+                    alert('Login Completed')
+                    window.location.reload();
+                }
+                else{
+                    alert('No Role');
+                }
+            }
+            else{
+                alert("Login success but no token received");
+            }
+        }catch(error){
+            if (error.response && typeof error.response.data === 'string') {
+                alert(error.response.data);
+            } else 
+            {
+                alert('Login failed');
+            }
+        };
+    };
+
+    const handleRegister = async(e) =>{
+        e.preventDefault();
+        try{
+            const API = await axios.post('http://localhost:5283/api/Authen/Register',{
+                Email: form2.email,
+                UserName: form2.userName,
+                PassWord: form2.passWord
+            });
+            alert(API.data)
+        }catch(error){
+            if (error.response && typeof error.response.data === 'string') {
+                alert(error.response.data);
+            } else 
+            {
+                alert('Register failed');
+            }
+        };
+    };
+
+
+
+    useEffect(() => { if (isCartVisible) refreshCart(); }, [isCartVisible]);
+
+    const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+    const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
+
+    async function refreshCart() {
+        const { data } = await axios.get(`http://localhost:5283/api/OrderItem/Current`, { headers: auth() });
+        setCart({
+            orderId: data?.orderId ?? 0,
+            items: data?.items ?? [],
+            actualPrice: data?.actualPrice ?? 0
+        });
+    }
+
+    async function removeItem(rowId) {
+    await axios.delete(`http://localhost:5283/api/OrderItem/DropItem`,  
+        { 
+            params: { OrderItemsId: rowId }, headers: auth() 
+        });
+         refreshCart();
+    }   
+
+
+    async function incQty(rowId, qty) {
+    await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
+        { quantity: qty + 1 },
+        { 
+            params: { OrderItemsId: rowId },
+            headers: { "Content-Type": "application/json", ...auth() } 
+        });
+        refreshCart();
+    }
+
+
+
+    async function decQty(rowId, qty) {
+        if (qty <= 1) return;
+        await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
+            { quantity: qty - 1 },
+            { 
+                params: { OrderItemsId: rowId },
+                headers: { "Content-Type": "application/json",...auth()}
+            });    
+            refreshCart ();
+    }   
+
+    const addToCart = async (ProductId) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("กรุณาเข้าสู่ระบบก่อน");
+
+                setIsHestonOpen(false);
+                setIsDioneLuxOpen(false);
+                setIsDioneOpen(false);
+                setIsStageOpen(false);
+                setIsMultibeamOpen(false);
+                setIsEnchant900Open(false);
+                setIsSubOpen(false);
+                setIsBarOpen(false);
+                setIsPano3Open(false);
+                setIsXIOOpen(false);
+                setIsArcUltraOpen(false);
+                setIsAmbeoMiniOpen(false);
+                setIsSB300Open(false);
+                setIsHW700FOpen(false);
+                setIsHW650FOpen(false);
+                setIsHW600FOpen(false);
+
+                setIsLoginOpen(true)
+                return;
+            }
+            const API = await axios.post("http://localhost:5283/api/OrderItem/AddItem",
+            {   
+                ProductId,  
+                Quantity: 1
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            
+            });
+
+            const d = API.data;
+            const message = typeof d === "string" ? d : (d?.message || "");
+            const needAddress = message === "No Address" || (typeof d !== "string" && d?.needAddress === true);
+
+            if (needAddress) {
+                alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
+                navigatE("/pages/Address"); 
+                return;
+            }
+
+            const oid = Number(API.data?.orderId ?? API.data?.OrderId); 
+            if (Number.isFinite(oid) && oid > 0) {
+                localStorage.setItem("currentOrderId", String(oid));
+            }
+         
+            
+            setIsHestonOpen(false);
+            setIsDioneLuxOpen(false);
+            setIsDioneOpen(false);
+            setIsStageOpen(false);
+            setIsMultibeamOpen(false);
+            setIsEnchant900Open(false);
+            setIsSubOpen(false);
+            setIsBarOpen(false);
+            setIsPano3Open(false);
+            setIsXIOOpen(false);
+            setIsArcUltraOpen(false);
+            setIsAmbeoMiniOpen(false);
+            setIsSB300Open(false);
+            setIsHW700FOpen(false);
+            setIsHW650FOpen(false);
+            setIsHW600FOpen(false);
+            
+            setIsCartOpen(true);
+            alert("เพิ่มลงตะกร้าแล้ว");
+
+
+        } catch(error){
+            const status = error?.response?.status;
+            const raw = error?.response?.data;
+            const msg = typeof raw === "string" ? raw : raw?.message;
+
+            if (status === 404 && msg === "No Address") {
+                alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
+                navigatE("/pages/Address");
+                return;
+            }
+            setMessage(typeof raw === "string" ? raw : "failed");
+        }
+    };
+
+    const addToBuy = async (ProductId) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("กรุณาเข้าสู่ระบบก่อน");
+                navigatE('/pages/Home')
+                return;
+            }
+            const API = await axios.post("http://localhost:5283/api/OrderItem/AddItem",
+                {   
+                    ProductId,  
+                    Quantity: 1
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+            
+            const d = API.data;
+            const message = typeof d === "string" ? d : (d?.message || "");
+            const needAddress = message === "No Address" || (typeof d !== "string" && d?.needAddress === true);
+
+            if (needAddress) {
+                alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
+                navigatE("/pages/Address"); 
+                return;
+            }
+
+            const oid = Number(API.data?.orderId ?? API.data?.OrderId); 
+            if (Number.isFinite(oid) && oid > 0) {
+                localStorage.setItem("currentOrderId", String(oid));
+            }
+
+            setIsHestonOpen(false);
+            setIsDioneLuxOpen(false);
+            setIsDioneOpen(false);
+            setIsStageOpen(false);
+            setIsMultibeamOpen(false);
+            setIsEnchant900Open(false);
+            setIsSubOpen(false);
+            setIsBarOpen(false);
+            setIsPano3Open(false);
+            setIsXIOOpen(false);
+            setIsArcUltraOpen(false);
+            setIsAmbeoMiniOpen(false);
+            setIsSB300Open(false);
+            setIsHW700FOpen(false);
+            setIsHW650FOpen(false);
+            setIsHW600FOpen(false);
+           
+            navigatE("/pages/Address");
+            
+
+        } catch(error){
+            const status = error?.response?.status;
+            const raw = error?.response?.data;
+            const msg = typeof raw === "string" ? raw : raw?.message;
+            alert("ไม่มีที่อยู่");
+
+
+            if (status === 404 && msg === "No Address") {
+                alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
+                navigatE("/pages/Address");
+                return;
+            }
+            setMessage(typeof raw === "string" ? raw : "failed");
+        }
+    };
     
     return (
         <main>
-            <Navbar onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)}/>
+            <Navbar onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)} onLoginClick={() => setIsLoginOpen(true)} onRegisterClick={() => setIsRegisterOpen(true)}/>
             <div className='bg-[#edeef0] h-[1800px] flex items-start justify-center'>
                 <div className='container text-center mx-auto'>
-                    <h1 className='text-2xl text-[#212529] text-left font-extrabold -ml-11 mt-28'>Soundbars</h1>
+                    <h1 className='text-3xl text-[#212529] text-left font-extrabold -ml-11 mt-28 font-playfair'>Soundbars</h1>
                     <div className='myContainer'>
                         <div onClick={onHestonClick} className='containerBox relative'>
                             <img src={Sb1} alt="Beolit 20" className='imageInBox'/>
@@ -319,20 +621,113 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         </div>
                     </div>
                 </div>
-            </div> 
-            {isCartRendered && (
-                <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
-                        <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
-                            <IoClose size={24}/>
+            </div>
+            {isLoginOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative">
+                        <button onClick={() => setIsLoginOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black">
+                            <IoClose size={24} />
                         </button>
-                        <h2 className='text-2xl font-bold mb-4 text-center'>Cart</h2>
-                        <hr className="border-black border-t-2 w-full"/>
-                        <hr className="border-black border-t-2 absolute bottom-28 left-7 right-7"/>
-                        <button className='w-20 h-10 absolute bottom-5 right-4 bg-blue-500 text-white rounded-xl shadow hover:bg-blue-600 transition'>CheckOut
-                        </button>
+                        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+                        <form className="space-y-4">
+                            <input type="email" placeholder="Email" name='email' className="w-full border p-2 rounded" value={form.email} onChange={handleChange}/>
+                            <input type="password" placeholder="Password" name='passWord' className="w-full border p-2 rounded" value={form.passWord} onChange={handleChange}/>
+                            <button type='button' className="w-full bg-gray-600 text-white py-2 rounded hover:bg-blue-600" onClick={handleLogin}>
+                                Login
+                            </button>
+                            <p className='mt-auto font-light text-red-600 text-center'>{message}</p>
+                        </form>
                     </div>
-                </div>                        
+                </div>
+            )}
+            {isRegisterOpen && (
+                <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+                    <div className='bg-white rounded-lg shadow-lg p-6 w-96 relative'>
+                        <button onClick={() => setIsRegisterOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black">
+                            <IoClose size={24} />
+                        </button>
+                        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+                        <form className="space-y-4">
+                            <input type="email" placeholder="Email" name='email' className="w-full border p-2 rounded" value={form2.email} onChange={handleChange2}/>
+                            <input type="text" placeholder='Username' name='userName' className='w-full border p-2 rounded' value={form2.userName} onChange={handleChange2}/>
+                            <input type="password" placeholder="Password" name='passWord' className="w-full border p-2 rounded" value={form2.passWord} onChange={handleChange2}/>
+                            <button className="w-full bg-gray-600 text-white py-2 rounded hover:bg-blue-600" onClick={handleRegister}>
+                                Register
+                            </button>
+                            <p className='mt-auto font-light text-red-600 text-center'>{message2}</p>
+                        </form>
+                    </div>
+                </div>
+            )} 
+            {isCartRendered && (
+                <div className=
+                    {`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out
+                        ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`
+                    }>
+                        <div className=
+                            {`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out
+                                ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`
+                            }>
+                            <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
+                                <IoClose size={24}/>
+                            </button>
+                            <h2 className='text-2xl font-bold mb-4 text-center'>Cart</h2>
+                            <hr className="border-black border-t-2 w-full"/>
+                            <ul className='mt-[14px] space-y-5'>
+                                {cart.items.length === 0 ? (
+                                    <li className="text-center text-gray-500 py-10">
+                                        ตะกร้าว่าง
+                                    </li> ) : cart.items.map(items => (
+                                        <li key={items.orderItemsId}>
+                                            <div className='w-full h-28 rounded-lg bg-gray-300 flex space-x-3'>
+                                                <div className='w-24 h-20 flex justify-center items-start'>
+                                                    <img className='w-24 h-20 ml-4 object-contain' src={getImageById(items.productId)} alt={items.name || ""} />
+                                                </div>
+                                                <ul className='flex flex-col'>
+                                                    <li className='flex flex-row'>
+                                                        <h3 className='mt-3 font-bold'>{items.name}</h3>
+                                                        <button className='absolute right-9 mt-2' onClick={() => removeItem(items.orderItemsId)}>
+                                                            <IoClose size={17}/>
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <h3 className='text-xs font-sans'>{items.productDescription}</h3>
+                                                    </li>
+                                                    <li className='flex flex-row space-x-3'>
+                                                        <h3 className='absolute right-24 text-xs font-semibold mt-1'>Quantity :</h3>
+                                                        <button className='absolute right-20' onClick={() => decQty(items.orderItemsId, items.qty)}> ‹ </button>
+                                                        <div className='bg-white w-5 h-4 absolute right-[53px] mt-[5px]'>
+                                                            <h2 className='flex justify-center items-center absolute  ml-[7px] text-xs'>{items.qty}</h2>
+                                                        </div>
+                                                        <button className='absolute right-10' onClick={() => incQty(items.orderItemsId, items.qty)}> › </button>
+                                                    </li>
+                                                    <li>
+                                                        <div className='bg-gray-300 rounded-sm w-full h-4' />
+                                                    </li>
+                                                    <li>
+                                                        <div className='bg-gray-100 rounded-b-lg w-[336.1px] h-7 mt-4 absolute right-6'>
+                                                            <h2 className='absolute right-5 mt-[4.2px] text-sm font-semibold '>
+                                                                ฿{Number(items.subtotal).toLocaleString()}
+                                                            </h2>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    ))}
+                            </ul>
+                            <hr className="border-black border-t-2 absolute bottom-24 left-7 right-7"/>
+                            <ul>
+                                <li>
+                                    <h1 className='absolute bottom-8 text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
+                                </li>
+                                <li>
+                                    <button onClick={goToAddress} className='w-20 h-10 absolute bottom-7 right-4 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-800 transition'>CheckOut
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
             )}
             {isMenuRendered &&(
                 <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -395,14 +790,15 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿439,000</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(33)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(33)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
+                        <p className='mt-auto font-light text-white text-center'>{message}</p>
                     </div>
                 </div>
             )}
@@ -440,11 +836,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿105,000</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(34)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(34)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -485,11 +881,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿75,000</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(35)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(35)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -530,11 +926,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿103,600</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(36)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(36)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -575,11 +971,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿34,500</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(37)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(37)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -620,11 +1016,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿18,000</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(38)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(38)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -665,11 +1061,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿7,900</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(39)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(39)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -710,11 +1106,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿14,800</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(40)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(40)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -755,11 +1151,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿32,990</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(41)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(41)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -800,11 +1196,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿79,900</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(42)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(42)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -845,11 +1241,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿49,900</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(43)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(43)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -890,11 +1286,13 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿22,600</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(44)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>
+                                    Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(44)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>
+                                    Buy
                                 </button>
                             </li>
                         </ul>
@@ -935,11 +1333,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿16,900</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(45)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(45)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -980,11 +1378,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿16,490</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(46)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(46)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -1025,11 +1423,11 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿8,990</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(47)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(47)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
@@ -1070,19 +1468,17 @@ function Soundbars({onHestonClick, onDioneLuxClick, onDioneClick, onStageClick, 
                         <h1 className='font-bold text-2xl ml-11 mt-16'>฿12,990</h1>
                         <ul className='flex flex-row space-x-5 absolute bottom-[40px] left-[700px]'>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
+                                <button onClick={() => addToCart(48)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Add
                                 </button>
                             </li>
                             <li>
-                                <button className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
+                                <button onClick={() => addToBuy(48)} className='bg-gray-700 rounded-lg w-16 h-8 hover:bg-slate-500 text-white'>Buy
                                 </button>
                             </li>
                         </ul>
                     </div>
                 </div>
             )}
-            
-
         </main>
     )
 }

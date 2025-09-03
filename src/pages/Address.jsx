@@ -2,22 +2,26 @@ import Navbar from '../components/Navbar'
 import React, { useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoClose } from 'react-icons/io5';
+import { getImageById } from "/Styles/product-images"; 
 import axios from 'axios';
 
-function Address({onAddressClick}) {
+
+function Address() {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMenuRendered, setIsMenuRendered] = useState(false);
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     const [isAddressOpen , setIsAddressOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState();
-    
+    const [activeIndex2, setActiveIndex2] = useState();
 
-    onAddressClick = (() => setIsAddressOpen(true));
+
+
+    const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
     const navigate = useNavigate();
     const goToHome = () =>{
-      navigate('/'); 
+      navigate('/pages/Home'); 
     }
 
     const navigate2 = useNavigate();
@@ -25,7 +29,38 @@ function Address({onAddressClick}) {
         navigate2('/pages/Speakers'); 
     }
 
+    const navigate3 = useNavigate();
+    const goToHeadphones = () =>{
+        navigate3('/pages/Headphones')
+    }
+
+    const navigate11 = useNavigate();
+    const goToSoundbars = () =>{
+          navigate11('/pages/Soundbars')
+    }
+
+
+    const [address, setAddress] = useState({ addressId: 0, items: []});
+    const [selectedAddressId, setSelectedAddressId] = useState(0);
+
+
+    /////////////////////////////// api แสดงที่อยู่. /////////////////////////////////
+
+    async function refreshAddress() {
+        const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
+        setAddress({
+            addressId: data?.addressId ?? [0],
+            items: data?.items ?? [0],
+        });
+        setSelectedAddressId(data?.addressId ?? 0);
+    }
+
+    useEffect(() => {refreshAddress();}, []);
+
+
     const [form , setForm] = useState({
+        FirstName: '',
+        LastName: '',
         AddressName: '',
         Province: '',
         District: '',
@@ -41,13 +76,17 @@ function Address({onAddressClick}) {
         });
     };
 
+
+    /////////////////////////////// api เพิ่มที่อยู่. /////////////////////////////////
+
     const handleAddress = async(e) =>{
         e.preventDefault();
         try{
-
             const token = localStorage.getItem("token");
-            const API = await axios.post('http://localhost:5283/api/Address/FillAddress',{
-                
+            const API = await axios.post(`http://localhost:5283/api/Address/FillAddress`,{    
+
+                FirstName: form.FirstName,
+                LastName: form.LastName,
                 AddressName: form.AddressName,
                 Province: form.Province,
                 District: form.District,
@@ -55,13 +94,13 @@ function Address({onAddressClick}) {
                 PhoneNumber: form.PhoneNumber
             },
             {
-                headers: {
-                    Authorization:`Bearer ${token}`,
-                },
-            }
-            );
+                headers: { Authorization:`Bearer ${token}` }
+            });
+            refreshAddress();
+            setIsAddressOpen(false);
             setMessage(API.data)
             console.log("API Response:", API.data);
+
         }catch(error){
             if (error.response && typeof error.response.data === 'string') {
                 setMessage(error.response.data);
@@ -69,6 +108,45 @@ function Address({onAddressClick}) {
             {
                 setMessage('failed');
             }
+        }
+    };
+
+
+    /////////////////////////////// api จ่ายเงิน. /////////////////////////////////
+
+    const Purchase = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const orderId = Number(localStorage.getItem("currentOrderId"));
+
+            console.log("[PURCHASE] token?", !!token, "orderId=", orderId);
+
+            const API = await axios.put("http://localhost:5283/api/OrderItem/EditStatus",
+                null,
+            {   
+                params: { OrderId: orderId },
+                headers: { Authorization: `Bearer ${token}` }
+            });
+    
+            setMessage(API.data)
+            console.log("[PURCHASE][OK]", API.status, API.data)
+            alert("ชำระเงินสำเร็จ");
+            navigate("/pages/Home")
+            
+        } catch(error){
+            const status = error?.response?.status;
+            const raw = error?.response?.data;
+            const msg = typeof raw === "string" ? raw : raw?.message || raw?.title || raw?.detail || error?.message;
+            alert("ไม่มีของไอ้ควาย ใส่ตะกร้าก่อนไอเวร");
+
+            console.log("[PURCHASE][ERR]", status, raw);
+
+            if (status === 404 && msg === "No Address") {
+                alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
+                navigate("/pages/Address");
+                return;
+            }
+            setMessage(typeof raw === "string" ? raw : "failed");
         }
     };
 
@@ -82,6 +160,65 @@ function Address({onAddressClick}) {
         }
     }, [isMenuOpen]);
 
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
+    useEffect(() => { refreshCart()},[])
+
+
+/////////////////////////////// refresh cartitem. /////////////////////////////////
+
+    async function refreshCart() {
+        const { data } = await axios.get(`http://localhost:5283/api/OrderItem/Current`, { headers: auth() });
+        setCart({
+            orderId: data?.orderId ?? 0,
+            items: data?.items ?? [],
+            actualPrice: data?.actualPrice ?? 0
+        });
+    }
+
+
+/////////////////////////////// ลบ cartitem. /////////////////////////////////
+
+    async function removeItem(rowId) {
+    await axios.delete(`http://localhost:5283/api/OrderItem/DropItem`,  
+        { 
+            params: { OrderItemsId: rowId }, headers: auth() 
+        });
+         refreshCart();
+    }   
+
+
+/////////////////////////////// เพิ่ม Quantity. /////////////////////////////////
+
+    async function incQty(rowId, qty) {
+    await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
+        { quantity: qty + 1 },
+        { 
+            params: { OrderItemsId: rowId },
+            headers: { "Content-Type": "application/json", ...auth() } 
+        });
+        refreshCart();
+    }
+
+
+/////////////////////////////// ลด Quantity. /////////////////////////////////
+
+    async function decQty(rowId, qty) { 
+    if (qty <= 1) return;
+    await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
+        { quantity: qty - 1 },
+        { 
+            params: { OrderItemsId: rowId },
+            headers: { "Content-Type": "application/json",...auth()}
+        });    
+        refreshCart ();
+    }   
+
     return (
         <main>
             <Navbar onMenuClick={() => setIsMenuOpen(true)}/>
@@ -93,50 +230,135 @@ function Address({onAddressClick}) {
                             <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[800px] h-[200px] text-center flex items-center justify-center'>
                                 <h2 className='text-left text-black text-base absolute left-14 top-44'>ที่อยู่จัดส่งสินค้า</h2>
                                 <ul className='flex space-y-3 flex-col'>
-                                    <li>
-                                        <h2 className='text-gray-400 text-lg hover:bg-gray-300 w-auto h-auto mt-7'> ไม่มีที่อยู่จัดส่งสินค้า</h2>
-                                    </li>
-                                    <li>
-                                        <button onClick={onAddressClick} className='text-black text-sm hover:bg-gray-300 w-auto h-auto rounded-lg'>เพิ่มที่อยู่</button>
-                                    </li>
+                                  {address.items.length === 0 ? (
+                                    <button onClick={() => setIsAddressOpen(true)} className='text-sm hover:bg-gray-300 px-3 py-2 rounded-lg'>
+                                        เพิ่มที่อยู่
+                                    </button>
+                                  ) : (
+                                    <ul className='flex flex-row space-x-3'>
+                                        {address.items.map(it => (
+                                            <li key={it.addressId} className={`p-3 rounded border ${selectedAddressId === it.addressId ? 'border-rose-400 bg-rose-50' : 'border-gray-200 bg-white'}`}>
+                                                <label className='flex items-start gap-3 cursor-pointer'>
+                                                    <input type="radio" name='selectedAddress' className='mt-1' checked={selectedAddressId === it.addressId} onChange={() => setSelectedAddressId(it.addressId)}/>
+                                                    <div>
+                                                        <div className='font-medium'>
+                                                            {it.firstname} {it.lastname} {it.phoneNumber}
+                                                        </div>
+                                                        <div className='text-sm text-gray-600'>
+                                                            {it.name} {it.district} {it.province} {it.postalCode}
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </li>
+                                        ))}
+                                        <li>
+                                            <button onClick={() => setIsAddressOpen(true)} className='text-sm px-3 py-2 rounded bg-gray-200 hover:bg-gray-300'>
+                                                เพิ่มที่อยู่
+                                            </button>
+                                        </li>
+                                    </ul>
+                                  )
+                                }
                                 </ul>
                             </div>
                             <h1 className='text-xl text-[#212529] text-left font-extrabold mt-7'>รูปแบบการจัดส่ง</h1>
                             <ul className='flex flex-row space-x-4'>
                                 <li>
-                                    <div onClick={() => setActiveIndex(0)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-pink-200 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 0 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
+                                    <div onClick={() => setActiveIndex(0)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 0 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
                                         <h2 className='text-left text-black text-base absolute left-[60px] top-[460px]'>ส่งด้วย.....</h2>
                                         <h2 className='text-left text-black text-base absolute left-64 top-[460px]'>0฿</h2>
                                     </div>
                                 </li>
                                 <li>
-                                    <div onClick={() => setActiveIndex(1)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-pink-200 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 1 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
+                                    <div onClick={() => setActiveIndex(1)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 1 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
                                         <h2 className='text-left text-black text-base absolute left-[333px] top-[460px]'>ส่งด้วย.....</h2>
                                         <h2 className='text-left text-black text-base absolute left-64 top-[460px]'>0฿</h2>
                                     </div>
                                 </li>
                                 <li>
-                                    <div onClick={() => setActiveIndex(2)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-pink-200 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 2 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
+                                    <div onClick={() => setActiveIndex(2)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 2 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
                                         <h2 className='text-left text-black text-base absolute left-[606px] top-[460px]'>ส่งด้วย.....</h2>
                                         <h2 className='text-left text-black text-base absolute left-64 top-[460px]'>0฿</h2>
                                     </div>
                                 </li>
                             </ul>
                             <h1 className='text-xl text-[#212529] text-left font-extrabold mt-7'>ช่องทางการจ่ายเงิน</h1>
-                            <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-blue-500 transition p-6 mt-7 w-[390px] h-[130px] text-center flex items-center justify-center flex-row'>
-                            </div>
+                            <ul className='flex flex-row space-x-5'>
+                                <li>
+                                    <div onClick={() => setActiveIndex2(0)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[390px] h-[130px] text-center flex items-center justify-center flex-row ${activeIndex2 === 0 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div onClick={() => setActiveIndex2(1)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[390px] h-[130px] text-center flex items-center justify-center flex-row ${activeIndex2 === 1 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
+                                    </div>
+                                </li>
+                            </ul>
                         </li>
                         <li>
                             <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[470px] h-[600px] text-center flex items-center justify-center'>
-                                <hr className="border-black border-t-2 w-full mt-[450px] bottom-56"/>
-                                <button className='w-24 bg-gray-500 rounded-lg hover:bg-gray-400 absolute left-[1290px] bottom-[110px] text-white'>ชำระเงิน</button>
+                                <div className='w-full h-[490px] -mt-10 flex justify-center items-start'>
+                                    <ul className='flex flex-col space-y-12'>
+                                         {cart.items.length === 0 ? (
+                                            <li className="text-center text-gray-500 py-10">
+                                                ตะกร้าว่าง
+                                            </li> ) : cart.items.map(items => (
+                                            <li key={items.orderItemsId}>
+                                                <div className='flex items-start justify-start w-[420px] h-20 bg-gray-300 rounded-t-lg'>
+                                                    <img className=' w-24 h-20 ml-4' src= {getImageById(items.productId)} alt={items.name || ""} />
+                                                        <ul className='flex flex-col items-start justify-start'>
+                                                            <li className='flex flex-row'>
+                                                                <h3 className='mt-3 font-bold'>{items.name}</h3>
+                                                                <button className=' absolute right-20 mt-2' onClick={() => removeItem(items.orderItemsId)}>
+                                                                    <IoClose size={17}/>
+                                                                </button>  
+                                                            </li>
+                                                            <li>
+                                                                <h3 className='text-xs font-sans'>{items.productDescription}</h3>
+                                                            </li>
+                                                            <li className='flex flex-row space-x-3'>
+                                                                <h3 className='absolute right-36 text-xs font-semibold mt-1'>Quantity :</h3>
+                                                                <button className='absolute right-32' onClick={() => decQty(items.orderItemsId, items.qty)}> 
+                                                                    ‹ 
+                                                                </button>
+                                                                <div className='bg-white w-5 h-4 absolute right-[103.2px] mt-[5px]'>
+                                                                    <h2 className='flex justify-center items-center absolute  ml-[7px] text-xs'>{items.qty}</h2>
+                                                                </div>
+                                                                <button className='absolute right-[92px]' onClick={() => incQty(items.orderItemsId, items.qty)}> 
+                                                                    › 
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <div className='bg-gray-300 rounded-sm w-full h-4'>
+                                                                </div>
+                                                            </li>
+                                                            <li>
+                                                                <div className='bg-gray-400 rounded-b-lg w-[419.7px] h-7 mt-3 absolute right-[73.1px]'>
+                                                                    <h2 className='absolute right-5 mt-[4.2px] text-sm font-semibold '>฿{Number(items.subtotal).toLocaleString()}</h2>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                        <hr className="border-black border-t-2 absolute bottom-24 w-[418px] top-[680px]"/>
+                                                        <ul className='flex flex-row items-start'>
+                                                            <li>
+                                                                <h1 className='absolute bottom-[109px] left-[990px] text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
+                                                            </li>
+                                                            <li>
+                                                                <button onClick={Purchase} className='w-24 bg-gray-500 rounded-lg hover:bg-gray-400 absolute left-[1290px] bottom-[110px] text-white'>
+                                                                    ชำระเงิน
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
                             </div>
                         </li>
                     </ul>
                 </div>
             </div>
             <div className='bg-gray-400 h-[200px]'>
-
             </div>
             {isMenuRendered &&(
                 <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -154,11 +376,11 @@ function Address({onAddressClick}) {
                                 </button>
                             </li>
                             <li>
-                                <button>Headphones
+                                <button onClick={goToHeadphones}>Headphones
                                 </button>
                             </li>
                             <li>
-                                <button>Soundbars
+                                <button onClick={goToSoundbars}>Soundbars
                                 </button>
                             </li>
                         </ul>  
@@ -167,18 +389,21 @@ function Address({onAddressClick}) {
             )}
             {isAddressOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6 w-[800px] h-[480px] relative">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-[800px] h-fit relative">
                         <button onClick={() => setIsAddressOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black">
                             <IoClose size={24} />
                         </button>
                         <h2 className="text-2xl font-bold mb-4 text-center">Add Address</h2>
                         <form className='space-y-4 flex items-center justify-center flex-col'>
+                            <input type="text" placeholder="FirstName" name='FirstName' className="w-[500px] border p-2 rounded" value={form.FirstName} onChange={handleChange}/>
+                            <input type="text" placeholder="LastName" name='LastName' className="w-[500px] border p-2 rounded" value={form.LastName} onChange={handleChange}/>
                             <input type="text" placeholder="AddressName" name='AddressName' className="w-[500px] border p-2 rounded" value={form.AddressName} onChange={handleChange}/>
                             <input type="text" placeholder='Province' name='Province' className='w-[500px] border p-2 rounded' value={form.Province} onChange={handleChange}/>
                             <input type="text" placeholder="District" name='District' className="w-[500px] border p-2 rounded" value={form.District} onChange={handleChange}/>
                             <input type="text" pattern="[0-9]{5}" maxLength='5' placeholder="PostalCode" name='PostalCode' className="w-[500px] border p-2 rounded" value={form.PostalCode} onChange={handleChange}/>
                             <input type="text" pattern="[0-9]{10}" maxLength='10' placeholder="PhoneNumber" name='PhoneNumber' className="w-[500px] border p-2 rounded" value={form.PhoneNumber} onChange={handleChange}/>
-                            <button className="w-[180px] bg-gray-600 text-white py-2 rounded hover:bg-blue-600 ml-80 mt-96" onClick={handleAddress}>Add
+                            <button className="w-[180px] bg-gray-600 text-white py-2 rounded hover:bg-blue-600 ml-80 mt-96" onClick={handleAddress}>
+                                Add
                             </button>
                             <p className='mt-auto font-light text-red-600 text-center'>{message}</p>
                         </form>

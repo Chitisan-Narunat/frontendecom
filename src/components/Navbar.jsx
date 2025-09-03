@@ -18,7 +18,7 @@ function Navbar({ onLoginClick , onRegisterClick , onCartClick , onMenuClick}) {
     const handleLogout = () => {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
-        window.location.href = "/"; 
+        window.location.href = "/pages/Home"; 
     };
 
     return (
@@ -27,11 +27,11 @@ function Navbar({ onLoginClick , onRegisterClick , onCartClick , onMenuClick}) {
                 <button onClick={onMenuClick} className="-ml-14">
                     <img src={Menu} alt="white Menu" className=""/>
                 </button>
-                <a href="/" className='text-white text-2xl font-semibold -ml-60'>Dontknow</a>
+                <a href="/pages/Home" className='text-white text-2xl font-semibold -ml-60 font-playfair'>Dontknow</a>
                 <div className='flex items-center ml-16'>
                     <input type="text" placeholder = "Search:" className='px-3 py-1 rounded-l-md border border-gray-300 focus:outline-none w-96' 
                     />
-                    <button className='bg-white text-[#222222] px-4 py-1 rounded-r-md border border-gray-300 hover:bg-gray-100 transition'>
+                    <button className='bg-white text-[#222222] px-4 py-1 rounded-r-md border border-gray-300 hover:bg-gray-100 transition font-playfair'>
                     Search
                     </button>
                 </div>
@@ -42,22 +42,22 @@ function Navbar({ onLoginClick , onRegisterClick , onCartClick , onMenuClick}) {
                     {isLoggedIn ? (
                         <>
                             <li>
-                                <a href="/pages/Profile" className='text-white hover:text-gray-300'>Profile
+                                <a href="/pages/Profile" className='text-white hover:text-gray-300 font-playfair'>Profile
                                 </a>
                             </li>
                             <li>
-                                <button onClick={handleLogout} className='text-white hover:text-gray-300'>Logout
+                                <button onClick={handleLogout} className='text-white hover:text-gray-300 font-playfair'>Logout
                                 </button>
                             </li>
                         </>
                     ) : (
                         <>
                             <li>
-                                <button onClick={onLoginClick} className='text-white hover:text-gray-300'>Login
+                                <button onClick={onLoginClick} className='text-white hover:text-gray-300 font-playfair'>Login
                                 </button>
                             </li>
                             <li>
-                                <button onClick={onRegisterClick} className="text-white hover:text-gray-300">Register
+                                <button onClick={onRegisterClick} className="text-white hover:text-gray-300 font-playfair">Register
                                 </button>
                             </li>
                         </>
