@@ -59,6 +59,10 @@
     @apply flex flex-row space-x-[355px] absolute left-3 top-1/2 -translate-y-1/2
 }
 
+.ulsbpicbutton {
+    @apply flex flex-row space-x-[383px] absolute -left-1 top-1/2 -translate-y-1/2
+}
+
 .picbutton {
     @apply bg-gray-700 text-white p-2 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-600
 }

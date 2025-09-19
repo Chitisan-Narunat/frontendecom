@@ -190,8 +190,8 @@ function Profile() {
         </div>
       </div>
       {isMenuRendered &&(
-        <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
             <button onClick={() => setIsMenuOpen(false)} className='absolute top-6 left-9 text-gray-600 hover:text-black'>
               <IoClose size={24}/>
             </button>
@@ -217,8 +217,8 @@ function Profile() {
         </div>
       )}
       {isCartRendered && (
-        <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsCartOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
             <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
               <IoClose size={24}/>
             </button>
@@ -309,10 +309,10 @@ function Profile() {
           }
       }
 
-     useEffect(() => { refreshUserprofile(); },[]);
+    useEffect(() => { refreshUserprofile(); },[]);
 
   
-     const primary = userprofile.items?.[0] || {};
+    const primary = userprofile.items?.[0] || {};
 
     return (
       <div className="space-y-6">
@@ -347,7 +347,6 @@ function Profile() {
   }
 
   useEffect(() => {refreshOrderhistory();}, []);
-
 
     return (
       <div className='space-y-6'>
@@ -388,6 +387,7 @@ function Profile() {
     );
   }
 
+
   function FavouriteTab(){
     return (
       <div className='space-y-6'>
@@ -405,8 +405,9 @@ function Profile() {
   const [address, setAddress] = useState({ addressId: 0, items: []});
 
   const [isAddressOpen, setIsAddressOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState(null);
 
+  const [_editingItem, setEditingItem] = useState(null);
+  void _editingItem;
 
     async function refreshAddress() {
       const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
@@ -427,7 +428,6 @@ function Profile() {
     }
 
    const[editform, setEditform] = useState({
-
           AddressId: '',
           FirstName: '',
           LastName: '',
@@ -437,6 +437,7 @@ function Profile() {
           PostalCode: '',
           PhoneNumber: ''
       });
+
 
     function openEdit(item) {
       setEditingItem(item);
@@ -490,7 +491,6 @@ function Profile() {
     await refreshAddress();
     closeModal();
   }
-
 
 
     return (

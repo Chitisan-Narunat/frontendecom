@@ -15,10 +15,12 @@ function Address() {
     const [activeIndex, setActiveIndex] = useState();
     const [activeIndex2, setActiveIndex2] = useState();
 
-
+    
 
     const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
+
+    
     const navigate = useNavigate();
     const goToHome = () =>{
       navigate('/pages/Home'); 
@@ -38,24 +40,44 @@ function Address() {
     const goToSoundbars = () =>{
           navigate11('/pages/Soundbars')
     }
-
+    
 
     const [address, setAddress] = useState({ addressId: 0, items: []});
-    const [selectedAddressId, setSelectedAddressId] = useState(0);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+
+    useEffect(() => {
+        const saved = localStorage.getItem("selectedAddressId");
+        if (saved) setSelectedAddressId(Number(saved));
+    }, []);
+
+    useEffect(() => {
+        if (selectedAddressId) localStorage.setItem("selectedAddressId", String(selectedAddressId));
+    }, [selectedAddressId]);
 
 
     /////////////////////////////// api แสดงที่อยู่. /////////////////////////////////
 
     async function refreshAddress() {
-        const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
-        setAddress({
-            addressId: data?.addressId ?? [0],
-            items: data?.items ?? [0],
-        });
-        setSelectedAddressId(data?.addressId ?? 0);
-    }
+        try{
+            const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
+            const items = Array.isArray(data?.items) ? data.items : [];
+            const apiDefaultId = Number(data?.addressId) || 0;
+            const fallbackId   = items[0]?.addressId ?? 0;
 
-    useEffect(() => {refreshAddress();}, []);
+            setAddress({ addressId: apiDefaultId || fallbackId, items });
+
+            setSelectedAddressId(prev => {
+                if (prev && items.some(a => a.addressId === prev)) return prev; 
+                return apiDefaultId || fallbackId;                               
+            });
+        } catch (err) {
+            console.log("[UiAddress2][ERR]", err?.response || err);
+            setAddress({ addressId: 0, items: [] });
+            setSelectedAddressId(0);
+        }
+    }
+    useEffect(() => { refreshAddress(); }, []);
 
 
     const [form , setForm] = useState({
@@ -124,7 +146,7 @@ function Address() {
             const API = await axios.put("http://localhost:5283/api/OrderItem/EditStatus",
                 null,
             {   
-                params: { OrderId: orderId },
+                params: { OrderId: orderId, AddressId: selectedAddressId },
                 headers: { Authorization: `Bearer ${token}` }
             });
     
@@ -138,8 +160,6 @@ function Address() {
             const raw = error?.response?.data;
             const msg = typeof raw === "string" ? raw : raw?.message || raw?.title || raw?.detail || error?.message;
             alert("ไม่มีของไอ้ควาย ใส่ตะกร้าก่อนไอเวร");
-
-            console.log("[PURCHASE][ERR]", status, raw);
 
             if (status === 404 && msg === "No Address") {
                 alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
@@ -227,39 +247,45 @@ function Address() {
                     <h1 className='text-2xl text-[#212529] text-left font-extrabold mt-24'>ที่อยู่</h1>
                     <ul className='flex flex-row space-x-28'>
                         <li>
-                            <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[800px] h-[200px] text-center flex items-center justify-center'>
-                                <h2 className='text-left text-black text-base absolute left-14 top-44'>ที่อยู่จัดส่งสินค้า</h2>
-                                <ul className='flex space-y-3 flex-col'>
-                                  {address.items.length === 0 ? (
-                                    <button onClick={() => setIsAddressOpen(true)} className='text-sm hover:bg-gray-300 px-3 py-2 rounded-lg'>
-                                        เพิ่มที่อยู่
-                                    </button>
-                                  ) : (
-                                    <ul className='flex flex-row space-x-3'>
-                                        {address.items.map(it => (
-                                            <li key={it.addressId} className={`p-3 rounded border ${selectedAddressId === it.addressId ? 'border-rose-400 bg-rose-50' : 'border-gray-200 bg-white'}`}>
-                                                <label className='flex items-start gap-3 cursor-pointer'>
-                                                    <input type="radio" name='selectedAddress' className='mt-1' checked={selectedAddressId === it.addressId} onChange={() => setSelectedAddressId(it.addressId)}/>
-                                                    <div>
-                                                        <div className='font-medium'>
-                                                            {it.firstname} {it.lastname} {it.phoneNumber}
-                                                        </div>
-                                                        <div className='text-sm text-gray-600'>
-                                                            {it.name} {it.district} {it.province} {it.postalCode}
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            </li>
-                                        ))}
-                                        <li>
-                                            <button onClick={() => setIsAddressOpen(true)} className='text-sm px-3 py-2 rounded bg-gray-200 hover:bg-gray-300'>
-                                                เพิ่มที่อยู่
-                                            </button>
-                                        </li>
-                                    </ul>
-                                  )
-                                }
+                            <div className="relative border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[800px] h-[200px]">
+                                <ul className='flex flex-row space-x-10 items-center'>
+                                    <li>
+                                        <h2 className="text-left text-black text-base">ที่อยู่จัดส่งสินค้า</h2>
+                                    </li>
+                                    <li>
+                                        <button onClick={() => setIsAddressOpen(true)} className="text-sm h-[30px] w-[80px] rounded-lg bg-gray-200 hover:bg-gray-300">
+                                            เพิ่มที่อยู่
+                                        </button>
+                                    </li>
                                 </ul>
+                                <div className="mt-3 absolute left-6 right-6 bottom-6 top-16 overflow-y-auto">
+                                    {address.items.length === 0 ? (
+                                        <button >
+            
+                                        </button>
+                                    ) : (
+                                        <ul className="flex flex-wrap gap-3">
+                                            {address.items.map((it) => (
+                                                <li key={it.addressId} className={`p-3 rounded-lg border ${ selectedAddressId === it.addressId
+                                                        ? 'border-rose-400 bg-rose-50'
+                                                        : 'border-gray-200 bg-white'
+                                                    } max-w-full`}>
+                                                    <label className="flex items-start gap-3 cursor-pointer">
+                                                        <input type="radio" name="selectedAddress" className="mt-1" checked={selectedAddressId === it.addressId} onChange={() => setSelectedAddressId(it.addressId)}/>
+                                                        <div className="min-w-0">
+                                                            <div className="font-medium break-words">
+                                                                {it.firstname} {it.lastname} {it.phoneNumber}
+                                                            </div>
+                                                            <div className="text-sm text-gray-600 break-words">
+                                                                {it.name} {it.district} {it.province} {it.postalCode}
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                             </div>
                             <h1 className='text-xl text-[#212529] text-left font-extrabold mt-7'>รูปแบบการจัดส่ง</h1>
                             <ul className='flex flex-row space-x-4'>
@@ -298,10 +324,11 @@ function Address() {
                             <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[470px] h-[600px] text-center flex items-center justify-center'>
                                 <div className='w-full h-[490px] -mt-10 flex justify-center items-start'>
                                     <ul className='flex flex-col space-y-12'>
-                                         {cart.items.length === 0 ? (
+                                        {cart.items.length === 0 ? (
                                             <li className="text-center text-gray-500 py-10">
                                                 ตะกร้าว่าง
-                                            </li> ) : cart.items.map(items => (
+                                            </li> 
+                                            ) : cart.items.map(items => (
                                             <li key={items.orderItemsId}>
                                                 <div className='flex items-start justify-start w-[420px] h-20 bg-gray-300 rounded-t-lg'>
                                                     <img className=' w-24 h-20 ml-4' src= {getImageById(items.productId)} alt={items.name || ""} />
@@ -343,7 +370,7 @@ function Address() {
                                                                 <h1 className='absolute bottom-[109px] left-[990px] text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
                                                             </li>
                                                             <li>
-                                                                <button onClick={Purchase} className='w-24 bg-gray-500 rounded-lg hover:bg-gray-400 absolute left-[1290px] bottom-[110px] text-white'>
+                                                                <button type="button" onClick={Purchase} disabled={!selectedAddressId} title={!selectedAddressId ? "กรุณาเลือกที่อยู่ก่อน" : ""} className="w-24 bg-gray-500 rounded-lg hover:bg-gray-400 absolute left-[1290px] bottom-[110px] text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-500">
                                                                     ชำระเงิน
                                                                 </button>
                                                             </li>
@@ -361,8 +388,8 @@ function Address() {
             <div className='bg-gray-400 h-[200px]'>
             </div>
             {isMenuRendered &&(
-                <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
                         <button onClick={() => setIsMenuOpen(false)} className='absolute top-6 left-9 text-gray-600 hover:text-black'>
                             <IoClose size={24}/>
                         </button>

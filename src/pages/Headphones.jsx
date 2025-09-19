@@ -5,24 +5,8 @@ import { IoClose } from 'react-icons/io5';
 import { getImageById } from "/Styles/product-images"; 
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import { headphoneImages } from '../assets';
 
-
-import Hp1 from "/src/assets/พื้นหลัง monitor-iii-anc-front-desktop-01 ถูกเอาออก.png"
-import Hp2 from "/src/assets/พื้นหลัง 1-major-v-cream-front-desktop ถูกเอาออก.png"
-import Hp3 from "/src/assets/Motif-II-front-desktop-1-removebg-preview.png"
-import Hp4 from "/src/assets/พื้นหลัง minor_iv_cream_gallery-assets-desktop-01 ถูกเอาออก.png"
-import Hp6 from "/src/assets/Packshot-Beoplay-H100-Infinite-Black-perspective-0006-s1200x1200px.png"
-import Hp7 from "/src/assets/Packshot-Beoplay-H95-Gold-Tone-0006-Perspective-1200x1200px.png";
-import Hp8 from "/src/assets/Packshot-Beoplay-Eleven-Natural-Aluminium-Case-Earphones-Perspective-s1200x1200px.png";
-import Hp9 from "/src/assets/Beoplay-EX-Gold-Tone-Hero.png";
-import Hp10 from "/src/assets/Visual_Packshot_Saphir_Black_75268.png.webp"
-import Hp11 from "/src/assets/PALAST-230531-90365_copie.png.webp"
-import Hp12 from "/src/assets/Packshot-Beoplay-HX-Gold-Tone-0188-Perspective-S1200x1200px.png"
-import Hp13 from "/src/assets/h4_black1000x1000.png"
-import Hp14 from "/src/assets/E8_gold_1.png"
-import Hp15 from "/src/assets/EQ_black_10.png"
-import Hp16 from "/src/assets/AirPods_Max_Starlight_3-square_medium-removebg-preview.png"
-import Hp17 from "/src/assets/พื้นหลัง major-iv-black-front-desktop-1 ถูกเอาออก.png"
 
 function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick, onBeoH100Click, onBeoH95Click, onBeoElevenClick, onBeoExClick, onGeminiClick, onGeminiLuxClick, onBeoH4Click, onBeoHXClick, onBeoEQClick, onBeoE8Click, onMajorIVClick, onAirpodsClick}) {
     
@@ -165,6 +149,12 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
         "/src/assets/AirPods_Max_Starlight_2-square_medium-removebg-preview.png"
     ];
 
+    const images16 = [
+        "/src/assets/พื้นหลัง major-iv-black-front-desktop-1 ถูกเอาออก.png",
+        "/src/assets/พื้นหลัง major-iv-black-front_standing-desktop-5 ถูกเอาออก.png",
+        "/src/assets/พื้นหลัง major-iv-black-hand-desktop-6 ถูกเอาออก.png"
+    ]
+
     const [currentIndex, setCurrentIndex] = useState(0);
     
     const navigate = useNavigate();
@@ -257,6 +247,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 }
                 else if (role === "Admin"){
                     alert('Login Completed')
+                    navigate("/pages/Admin")
                     window.location.reload();
                 }
                 else{
@@ -319,7 +310,6 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
          refreshCart();
     }   
 
-
     async function incQty(rowId, qty) {
     await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
         { quantity: qty + 1 },
@@ -341,29 +331,33 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
         refreshCart ();
     }   
 
+    const closeallmodal = () =>{
+
+        setIsMonitor3Open(false);
+        setIsMajorVOpen(false);
+        setIsMotifOpen(false);
+        setIsMinorOpen(false);
+        setIsBeoH100Open(false);
+        setIsBeoH95Open(false);
+        setIsBeoElevenOpen(false);
+        setIsBeoExOpen(false);
+        setIsGeminiOpen(false);
+        setIsGeminiLuxOpen(false);
+        setIsBeoH4Open(false);
+        setIsBeoHXOpen(false);
+        setIsBeoEQOpen(false);
+        setIsBeoE8Open(false);
+        setIsMajorIVOpen(false);
+        setIsAirpodsOpen(false);
+    };
+
     const addToCart = async (ProductId) => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
                 alert("กรุณาเข้าสู่ระบบก่อน");
                 
-                setIsMonitor3Open(false);
-                setIsMajorVOpen(false);
-                setIsMotifOpen(false);
-                setIsMinorOpen(false);
-                setIsBeoH100Open(false);
-                setIsBeoH95Open(false);
-                setIsBeoElevenOpen(false);
-                setIsBeoExOpen(false);
-                setIsGeminiOpen(false);
-                setIsGeminiLuxOpen(false);
-                setIsBeoH4Open(false);
-                setIsBeoHXOpen(false);
-                setIsBeoEQOpen(false);
-                setIsBeoE8Open(false);
-                setIsMajorIVOpen(false);
-                setIsAirpodsOpen(false);
-
+                closeallmodal();
                 setIsLoginOpen(true)      
                 return;
             }
@@ -396,22 +390,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 localStorage.setItem("currentOrderId", String(oid));
             }
 
-            setIsMonitor3Open(false);
-            setIsMajorVOpen(false);
-            setIsMotifOpen(false);
-            setIsMinorOpen(false);
-            setIsBeoH100Open(false);
-            setIsBeoH95Open(false);
-            setIsBeoElevenOpen(false);
-            setIsBeoExOpen(false);
-            setIsGeminiOpen(false);
-            setIsGeminiLuxOpen(false);
-            setIsBeoH4Open(false);
-            setIsBeoHXOpen(false);
-            setIsBeoEQOpen(false);
-            setIsBeoE8Open(false);
-            setIsMajorIVOpen(false);
-            setIsAirpodsOpen(false);
+            closeallmodal();
 
             setIsCartOpen(true);
             alert("เพิ่มลงตะกร้าแล้ว");
@@ -466,23 +445,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 localStorage.setItem("currentOrderId", String(oid));
             }
 
-            setIsMonitor3Open(false);
-            setIsMajorVOpen(false);
-            setIsMotifOpen(false);
-            setIsMinorOpen(false);
-            setIsBeoH100Open(false);
-            setIsBeoH95Open(false);
-            setIsBeoElevenOpen(false);
-            setIsBeoExOpen(false);
-            setIsGeminiOpen(false);
-            setIsGeminiLuxOpen(false);
-            setIsBeoH4Open(false);
-            setIsBeoHXOpen(false);
-            setIsBeoEQOpen(false);
-            setIsBeoE8Open(false);
-            setIsMajorIVOpen(false);
-            setIsAirpodsOpen(false);
-           
+            closeallmodal();
             navigate("/pages/Address");
             
 
@@ -512,25 +475,25 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                     <h1 className='text-3xl text-[#212529] text-left font-extrabold -ml-11 mt-28 font-playfair'>Headphones</h1>
                     <div className='myContainer'>
                         <div onClick={onMonitor3Click} className='containerBox relative'>
-                            <img src={Hp1} alt="Beolit 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp1} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>MONITOR III A.N.C.</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿12990</p>
                         </div>
                         <div onClick={onMajorVClick} className='containerBox'>
-                            <img src={Hp2} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp2} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>MAJOR V</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿5990</p>
                         </div>
                         <div onClick={onMotifClick} className='containerBox'>
-                            <img src={Hp3} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp3} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>MOTIF II A.N.C.</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿7490</p>
                         </div>
                         <div onClick={onMinorClick} className='containerBox'>
-                            <img src={Hp4} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp4} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>MINOR IV</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿4990</p>
@@ -538,25 +501,25 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                     </div>
                     <div className='myContainer'>
                         <div onClick={onBeoH100Click} className='containerBox'>
-                            <img src={Hp6} alt="Beolit 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp6} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay H100</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿69000</p>
                         </div>
                         <div onClick={onBeoH95Click} className='containerBox'>
-                            <img src={Hp7} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp7} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay H95</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿40990</p>
                         </div>
                         <div onClick={onBeoElevenClick} className='containerBox'>
-                            <img src={Hp8} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp8} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay ELEVEN</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿19900</p>
                         </div>
                         <div onClick={onBeoExClick} className='containerBox'>
-                            <img src={Hp9} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp9} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay EX</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿9790</p>
@@ -564,25 +527,25 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                     </div>
                     <div className='myContainer'>
                         <div onClick={onGeminiClick} className='containerBox'>
-                            <img src={Hp10} alt="Beolit 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp10} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>Gemini II</h3>
                             <p className="desText">Devialet</p>
                             <p className="priceText">฿14990</p>
                         </div>
                         <div onClick={onGeminiLuxClick} className='containerBox'>
-                            <img src={Hp11} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp11} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Gemini II Opéra de Paris</h3>
                             <p className="desText">Devialet</p>
                             <p className="priceText">฿22490</p>
                         </div>
                         <div onClick={onBeoH4Click} className='containerBox'>
-                            <img src={Hp13} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp13} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay H4</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿9790</p>
                         </div>
                         <div onClick={onBeoHXClick} className='containerBox'>
-                            <img src={Hp12} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp12} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay HX</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿27900</p>
@@ -590,25 +553,25 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                     </div>
                     <div className='myContainer'>
                         <div onClick={onBeoEQClick} className='containerBox'>
-                            <img src={Hp15} alt="Beolit 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp15} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay EQ</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿12900</p>
                         </div>
                         <div onClick={onBeoE8Click} className='containerBox'>
-                            <img src={Hp14} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp14} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beoplay E8</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿9900</p>
                         </div>
                         <div onClick={onMajorIVClick} className='containerBox'>
-                            <img src={Hp17} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp17} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>MAJOR IV</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿4890</p>
                         </div>
                         <div onClick={onAirpodsClick} className='containerBox'>
-                            <img src={Hp16} alt="Be 20" className='imageInBox'/>
+                            <img src={headphoneImages.Hp16} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Airpods Max</h3>
                             <p className="desText">Apple</p>
                             <p className="priceText">฿19900</p>
@@ -652,8 +615,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isCartRendered && (
-                <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsCartOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
                         <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
                             <IoClose size={24}/>
                         </button>
@@ -721,8 +684,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isMenuRendered &&(
-                <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
                         <button onClick={() => setIsMenuOpen(false)} className='absolute top-6 left-9 text-gray-600 hover:text-black'>
                             <IoClose size={24}/>
                         </button>
@@ -748,8 +711,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isMajorVOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMajorVOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsMajorVOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -758,7 +721,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images2[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images2[currentIndex]} alt="Major V" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -796,8 +759,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isMonitor3Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMonitor3Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsMonitor3Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -806,7 +769,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images[currentIndex]} alt="Monitor III" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -843,8 +806,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isMotifOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMotifOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsMotifOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -853,7 +816,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images3[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images3[currentIndex]} alt="Motif II" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -890,8 +853,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isMinorOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMinorOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsMinorOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -900,7 +863,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images4[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images4[currentIndex]} alt="Minor IV" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -937,8 +900,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoH100Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoH100Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoH100Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -947,7 +910,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images5[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images5[currentIndex]} alt="Beoplay H100" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -984,8 +947,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoH95Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoH95Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoH95Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -994,7 +957,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images6[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images6[currentIndex]} alt="Beoplay H95" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1031,8 +994,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoElevenOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoElevenOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoElevenOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1041,7 +1004,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images7[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images7[currentIndex]} alt="Beoplay Eleven" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1078,8 +1041,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoExOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoExOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoExOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1088,7 +1051,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images8[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images8[currentIndex]} alt="Beoplay Ex" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1125,8 +1088,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isGeminiOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsGeminiOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsGeminiOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1135,7 +1098,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images9[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images9[currentIndex]} alt="Gemini II" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1172,8 +1135,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isGeminiLuxOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsGeminiLuxOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsGeminiLuxOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1182,7 +1145,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images10[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images10[currentIndex]} alt="Gemini II Lux" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1204,7 +1167,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                                 <h3 className='mt-2'>Our second-generation earbuds get the gold treatment. With a majestic 24-carat gold finish, this spectacularly compact case features proprietary acoustic innovations by Devialet, enhanced connectivity and improved ergonomics.</h3>
                             </li>
                         </ul>
-                        <h1 className='h1product'>฿22,490</h1>
+                        <h1 className='h1price'>฿22,490</h1>
                         <ul className='ulabbutton'>
                             <li>
                                 <button onClick={() => addToCart(26)} className='abbutton'>Add
@@ -1219,8 +1182,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoH4Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoH4Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoH4Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1229,7 +1192,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images11[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images11[currentIndex]} alt="Beoplay H4" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1266,8 +1229,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoHXOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoHXOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoHXOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1276,7 +1239,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images12[currentIndex]} alt="" className="picbutton"/>
+                                    <img src={images12[currentIndex]} alt="Beoplay Hx" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1313,8 +1276,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoEQOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoEQOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoEQOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1323,7 +1286,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images13[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images13[currentIndex]} alt="Beoplay Eq" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1360,8 +1323,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isBeoE8Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoE8Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoE8Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1370,7 +1333,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images14[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images14[currentIndex]} alt="Beoplay E8" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1407,8 +1370,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isMajorIVOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMajorIVOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsMajorIVOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1417,7 +1380,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images15[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images16[currentIndex]} alt="Major IV" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1454,8 +1417,8 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                 </div>
             )}
             {isAirpodsOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsAirpodsOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsAirpodsOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1464,7 +1427,7 @@ function Headphones({onMonitor3Click, onMajorVClick, onMotifClick, onMinorClick,
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images15[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images15[currentIndex]} alt="Airpods Max" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}

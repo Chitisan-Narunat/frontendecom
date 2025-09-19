@@ -5,25 +5,8 @@ import { IoClose } from 'react-icons/io5';
 import axios from 'axios';
 import { getImageById } from "/Styles/product-images"; 
 import { jwtDecode } from 'jwt-decode';
-
-//pic//
-import Beolit20 from "/src/assets/beolit-20-001.png";
-import Bo5 from "/src/assets/Packshot-Beosound-A1-3rd-Gen-Natural-Aluminium-Perspective-0003-s1200x1200px.png";
-import Bo6 from "/src/assets/Beosound_A5_Weave-Image_1.png";
-import Bo7 from "/src/assets/Packshot-Beosound-Explore-Grey-Mist-0034-Perspective-1200x1200.png";
-import Bo14 from "/src/assets/1_HK_ONYX_STUDIO_8_CHAMPAGNE_HERO_0154_x3.png"
-import Bo15 from "/src/assets/HK_GO_AND_PLAY_3_HERO_BLACK_43488_x7.png"
-import Bo16 from "/src/assets/HK_AURA_STUDIO3_320_HERO_x4.png"
-import Bo18 from "/src/assets/JBL_Flip_7_Tomorrowland_Hero_1605x1605px_1024x1024.webp"
-import Bo19 from "/src/assets/2_JBL_PULSE_5_FRONT_535x535px_600x600.webp"
-import Bo20 from "/src/assets/JBL_XTREME_3_HERO_535x535px_1024x1024.png"
-import Bo21 from "/src/assets/JBL_BOOMBOX3_WIFI_HERO_535x535px_1024x1024.png"
-import Bo23 from "/src/assets/พื้นหลัง emberton-iii-front-desktop-7 ถูกเอาออก.png"
-import Bo24 from "/src/assets/พื้นหลัง Gallery-Desktop-Middleton-II-Cream-01 ถูกเอาออก.png"
-import Bo25 from "/src/assets/พื้นหลัง gallery-assets-desktop-6 ถูกเอาออก.png"
-import Bo26 from "/src/assets/พื้นหลัง willen-ii-front-desktop-1 ถูกเอาออก.png"
-import Bo27 from "/src/assets/พื้นหลัง a3e6efc4-8cca-b630-ce13-685a8e3813fb ถูกเอาออก.png"
-//pic//
+import { speakerImages } from '../assets';
+import { iconImages } from '../assets';
 
 function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onOnyx8Click, onGoPlayClick, onAura3Click, onOnyx9Click, onFlip7ExClick, onPulse5Click, onXtremeClick, onBoomClick, onEmberClick, onMiddleClick, onKilburnClick, onWillenClick}) {
     
@@ -185,12 +168,12 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
 
     const navigate = useNavigate();
     const goToHome = () =>{
-      navigate('/pages/Home'); 
+        navigate('/pages/Home'); 
     }
 
     const Navigate = useNavigate();
     const goToSpeakers = () =>{
-      Navigate('/pages/Speakers'); 
+        Navigate('/pages/Speakers'); 
     }
 
     const navigate4 = useNavigate();
@@ -251,7 +234,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
 //////////////////////////////Login////////////////////////////////
 
     const handleLogin = async(e) =>{
-        e.preventDefault();
+        e.preventDefault(); //กันไม่ให้ฟอร์ม refresh ตอนกดsubmit
         try{
             const API = await axios.get('http://localhost:5283/api/Authen/Login',{
                 params: {
@@ -261,7 +244,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             });
 
             setMessage(API.data)
-            console.log("API Response:", API.data);
+            setIsLoginOpen(false);
+
             if (API.data.token) {
                 localStorage.setItem("token", API.data.token);
                 const decoded = jwtDecode(API.data.token);
@@ -272,10 +256,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 }
                 else if (role === "Admin"){
                     alert('Login Completed')
+                    navigate("/pages/Admin")
                     window.location.reload();
-                }
-                else{
-                    alert('No Role');
                 }
             }
             else{
@@ -393,7 +375,24 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
 
 //////////////////////////////Cart////////////////////////////////
 
-
+    const closeAllModals = () => {
+        setIsBeoLit20Open(false);
+        setIsBeoA5Open(false);
+        setIsBeoExOpen(false);
+        setIsBeoA1Open(false);
+        setIsOnyx8Open(false);
+        setIsGoPlayOpen(false);
+        setIsAura3Open(false);
+        setIsOnyx9Open(false);
+        setIsFlip7ExOpen(false);
+        setIsPulse5Open(false);
+        setIsXtremeOpen(false);
+        setIsBoomOpen(false);
+        setIsEmberOpen(false);
+        setIsMiddleOpen(false);
+        setIsKilburnOpen(false);
+        setIsWillenOpen(false);
+    };
 //////////////////////////////Add Modal////////////////////////////////
 
     const addToCart = async (ProductId) => {
@@ -402,23 +401,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             if (!token) {
                 alert("กรุณาเข้าสู่ระบบก่อน");
 
-                setIsBeoLit20Open(false);
-                setIsBeoA5Open(false);
-                setIsBeoExOpen(false);
-                setIsBeoA1Open(false);
-                setIsOnyx8Open(false);
-                setIsGoPlayOpen(false);
-                setIsAura3Open(false);
-                setIsOnyx9Open(false);
-                setIsFlip7ExOpen(false);
-                setIsPulse5Open(false);
-                setIsXtremeOpen(false);
-                setIsBoomOpen(false);
-                setIsEmberOpen(false);
-                setIsMiddleOpen(false);
-                setIsKilburnOpen(false);
-                setIsWillenOpen(false);
-
+                closeAllModals();
                 setIsLoginOpen(true)         
                 return;
             }
@@ -449,23 +432,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 localStorage.setItem("currentOrderId", String(oid));
             }
     
-            setIsBeoLit20Open(false);
-            setIsBeoA5Open(false);
-            setIsBeoExOpen(false);
-            setIsBeoA1Open(false);
-            setIsOnyx8Open(false);
-            setIsGoPlayOpen(false);
-            setIsAura3Open(false);
-            setIsOnyx9Open(false);
-            setIsFlip7ExOpen(false);
-            setIsPulse5Open(false);
-            setIsXtremeOpen(false);
-            setIsBoomOpen(false);
-            setIsEmberOpen(false);
-            setIsMiddleOpen(false);
-            setIsKilburnOpen(false);
-            setIsWillenOpen(false);
-
+            closeAllModals();
             setIsCartOpen(true);
             alert("เพิ่มลงตะกร้าแล้ว");
 
@@ -519,23 +486,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 localStorage.setItem("currentOrderId", String(oid));
             }
 
-            setIsBeoLit20Open(false);
-            setIsBeoA5Open(false);
-            setIsBeoExOpen(false);
-            setIsBeoA1Open(false);
-            setIsOnyx8Open(false);
-            setIsGoPlayOpen(false);
-            setIsAura3Open(false);
-            setIsOnyx9Open(false);
-            setIsFlip7ExOpen(false);
-            setIsPulse5Open(false);
-            setIsXtremeOpen(false);
-            setIsBoomOpen(false);
-            setIsEmberOpen(false);
-            setIsMiddleOpen(false);
-            setIsKilburnOpen(false);
-            setIsWillenOpen(false);
-           
+            closeAllModals();
             navigate("/pages/Address");
             
         } catch(error){
@@ -564,103 +515,104 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                     <h1 className='text-3xl text-[#212529] text-left font-extrabold -ml-11 mt-28 font-playfair'>Speakers</h1>
                     <div className='myContainer'>
                         <div onClick={onBeoLit20Click} className='containerBox relative'>
-                            <img src={Beolit20} alt="Beolit 20" className='imageInBox'/>
+                            <img src={speakerImages.Beolit20} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>Beolit 20</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿21990</p>
+                            <img src={iconImages.fav} alt="" className='w-5 h-5 absolute right-3 bottom-[6px]' />
                         </div>
-                        <div onClick={onBeoA5Click} className='containerBox'>
-                            <img src={Bo6} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onBeoA5Click} className='containerBox relative'>
+                            <img src={speakerImages.Bo6} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beosound A5</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿64700</p>
                         </div>
-                        <div onClick={onBeoExClick} className='containerBox'>
-                            <img src={Bo7} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onBeoExClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo7} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beosound Explore</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿7900</p>
                         </div>
-                        <div onClick={onBeoA1Click} className='containerBox'>
-                            <img src={Bo5} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onBeoA1Click} className='containerBox relative'>
+                            <img src={speakerImages.Bo5} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Beosound A1</h3>
                             <p className="desText">Bang&Olufsen</p>
                             <p className="priceText">฿14800</p>
                         </div>
                     </div>
                     <div className='myContainer'>
-                        <div onClick={onOnyx8Click} className='containerBox'>
-                            <img src={Bo14} alt="Beolit 20" className='imageInBox'/>
+                        <div onClick={onOnyx8Click} className='containerBox relative'>
+                            <img src={speakerImages.Bo14} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>Onyx Studio 8</h3>
                             <p className="desText">Harman Kardon</p>
                             <p className="priceText">฿5290</p>
                         </div>
-                        <div onClick={onGoPlayClick} className='containerBox'>
-                            <img src={Bo15} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onGoPlayClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo15} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Go + Play 3</h3>
                             <p className="desText">Harman Kardon</p>
                             <p className="priceText">฿14900</p>
                         </div>
-                        <div onClick={onAura3Click} className='containerBox'>
-                            <img src={Bo16} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onAura3Click} className='containerBox relative'>
+                            <img src={speakerImages.Bo16} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Aura Studio 3</h3>
                             <p className="desText">Harman Kardon</p>
                             <p className="priceText">฿12900</p>
                         </div>
-                        <div onClick={onOnyx9Click} className='containerBox'>
-                            <img src={Bo27} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onOnyx9Click} className='containerBox relative'>
+                            <img src={speakerImages.Bo27} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Onyx Studio 9</h3>
                             <p className="desText">Harman Kardon</p>
                             <p className="priceText">฿11900</p>
                         </div>
                     </div>
                     <div className='myContainer'>
-                        <div onClick={onFlip7ExClick} className='containerBox'>
-                            <img src={Bo18} alt="Beolit 20" className='imageInBox'/>
+                        <div onClick={onFlip7ExClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo18} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>Flip 7 TOMORROWLAND</h3>
                             <p className="desText">JBL</p>
                             <p className="priceText">฿5990</p>
                         </div>
-                        <div onClick={onPulse5Click} className='containerBox'>
-                            <img src={Bo19} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onPulse5Click} className='containerBox relative'>
+                            <img src={speakerImages.Bo19} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Pulse 5</h3>
                             <p className="desText">JBL</p>
                             <p className="priceText">฿11900</p>
                         </div>
-                        <div onClick={onXtremeClick} className='containerBox'>
-                            <img src={Bo20} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onXtremeClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo20} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Xtreme 3</h3>
                             <p className="desText">JBL</p>
                             <p className="priceText">฿12900</p>
                         </div>
-                        <div onClick={onBoomClick} className='containerBox'>
-                            <img src={Bo21} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onBoomClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo21} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>Boombox 3 WIFI</h3>
                             <p className="desText">JBL</p>
                             <p className="priceText">฿24900</p>
                         </div>
                     </div>
                     <div className='myContainer'>
-                        <div onClick={onEmberClick} className='containerBox'>
-                            <img src={Bo23} alt="Beolit 20" className='imageInBox'/>
+                        <div onClick={onEmberClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo23} alt="Beolit 20" className='imageInBox'/>
                             <h3 className='headText'>EMBERTON III</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿7690</p>
                         </div>
-                        <div onClick={onMiddleClick} className='containerBox'>
-                            <img src={Bo24} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onMiddleClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo24} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>MIDDLETON II</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿12900</p>
                         </div>
-                        <div onClick={onKilburnClick} className='containerBox'>
-                            <img src={Bo25} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onKilburnClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo25} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>KILBURN III</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿14990</p>
                         </div>
-                        <div onClick={onWillenClick} className='containerBox'>
-                            <img src={Bo26} alt="Be 20" className='imageInBox'/>
+                        <div onClick={onWillenClick} className='containerBox relative'>
+                            <img src={speakerImages.Bo26} alt="Be 20" className='imageInBox'/>
                             <h3 className='headText'>WILLEN II</h3>
                             <p className="desText">Marshall</p>
                             <p className="priceText">฿4290</p>
@@ -704,78 +656,78 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isCartRendered && (
-                                <div className=
-                                    {`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out
-                                        ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`
-                                    }>
-                                    <div className=
-                                        {`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out
-                                            ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`
-                                        }>
-                                        <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
-                                            <IoClose size={24}/>
-                                        </button>
-                                        <h2 className='text-2xl font-bold mb-4 text-center'>Cart</h2>
-                                        <hr className="border-black border-t-2 w-full"/>
-                                        <ul className='mt-[14px] space-y-5'>
-                                            {cart.items.length === 0 ? (
-                                                <li className="text-center text-gray-500 py-10">
-                                                    ตะกร้าว่าง
-                                                </li> ) : cart.items.map(items => (
-                                                    <li key={items.orderItemsId}>
-                                                        <div className='w-full h-28 rounded-lg bg-gray-300 flex space-x-3'>
-                                                            <div className='w-24 h-20 flex justify-center items-start'>
-                                                                <img className='w-24 h-20 ml-4 object-contain' src={getImageById(items.productId)} alt={items.name || ""} />
-                                                            </div>
-                                                            <ul className='flex flex-col'>
-                                                                <li className='flex flex-row'>
-                                                                    <h3 className='mt-3 font-bold'>{items.name}</h3>
-                                                                    <button className='absolute right-9 mt-2' onClick={() => removeItem(items.orderItemsId)}>
-                                                                        <IoClose size={17}/>
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <h3 className='text-xs font-sans'>{items.productDescription}</h3>
-                                                                </li>
-                                                                <li className='flex flex-row space-x-3'>
-                                                                    <h3 className='absolute right-24 text-xs font-semibold mt-1'>Quantity :</h3>
-                                                                    <button className='absolute right-20' onClick={() => decQty(items.orderItemsId, items.qty)}> ‹ </button>
-                                                                    <div className='bg-white w-5 h-4 absolute right-[53px] mt-[5px]'>
-                                                                        <h2 className='flex justify-center items-center absolute  ml-[7px] text-xs'>{items.qty}</h2>
-                                                                    </div>
-                                                                    <button className='absolute right-10' onClick={() => incQty(items.orderItemsId, items.qty)}> › </button>
-                                                                </li>
-                                                                <li>
-                                                                    <div className='bg-gray-300 rounded-sm w-full h-4' />
-                                                                </li>
-                                                                <li>
-                                                                    <div className='bg-gray-100 rounded-b-lg w-[336.1px] h-7 mt-4 absolute right-6'>
-                                                                        <h2 className='absolute right-5 mt-[4.2px] text-sm font-semibold '>
-                                                                            ฿{Number(items.subtotal).toLocaleString()}
-                                                                        </h2>
-                                                                    </div>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </li>
-                                                ))}
-                                        </ul>
-                                        <hr className="border-black border-t-2 absolute bottom-24 left-7 right-7"/>
-                                        <ul>
-                                            <li>
-                                                <h1 className='absolute bottom-8 text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
-                                            </li>
-                                            <li>
-                                                <button onClick={goToAddress} className='w-20 h-10 absolute bottom-7 right-4 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-800 transition'>CheckOut
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsCartOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+                        <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
+                            <IoClose size={24}/>
+                        </button>
+                        <h2 className='text-2xl font-bold mb-4 text-center'>Cart</h2>
+                        <hr className="border-black border-t-2 w-full"/>
+                        <ul className='mt-[14px] space-y-5'>
+                            {cart.items.length === 0 ? (
+                                <li className="text-center text-gray-500 py-10">
+                                    ตะกร้าว่าง
+                                </li> ) : cart.items.map(items => (
+                                    <li key={items.orderItemsId}>
+                                        <div className='w-full h-28 rounded-lg bg-gray-300 flex space-x-3'>
+                                            <div className='w-24 h-20 flex justify-center items-start'>
+                                                <img className='w-24 h-20 ml-4 object-contain' src={getImageById(items.productId)} alt={items.name || ""} />
+                                            </div>
+                                            <ul className='flex flex-col'>
+                                                <li className='flex flex-row'>
+                                                    <h3 className='mt-3 font-bold'>{items.name}</h3>
+                                                    <button className='absolute right-9 mt-2' onClick={() => removeItem(items.orderItemsId)}>
+                                                        <IoClose size={17}/>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <h3 className='text-xs font-sans'>{items.productDescription}</h3>
+                                                </li>
+                                                <li className='flex flex-row space-x-3'>
+                                                    <h3 className='absolute right-24 text-xs font-semibold mt-1'>Quantity :</h3>
+                                                    <button className='absolute right-20' onClick={() => decQty(items.orderItemsId, items.qty)}> 
+                                                        ‹ 
+                                                    </button>
+                                                    <div className='bg-white w-5 h-4 absolute right-[53px] mt-[5px]'>
+                                                        <h2 className='flex justify-center items-center absolute  ml-[7px] text-xs'>{items.qty}</h2>
+                                                    </div>
+                                                    <button className='absolute right-10' onClick={() => incQty(items.orderItemsId, items.qty)}> 
+                                                        › 
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <div className='bg-gray-300 rounded-sm w-full h-4' />
+                                                </li>
+                                                <li>
+                                                    <div className='bg-gray-100 rounded-b-lg w-[336.1px] h-7 mt-4 absolute right-6'>
+                                                        <h2 className='absolute right-5 mt-[4.2px] text-sm font-semibold '>
+                                                            ฿{Number(items.subtotal).toLocaleString()}
+                                                        </h2>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                )
+                            )}
+                        </ul>
+                        <hr className="border-black border-t-2 absolute bottom-24 left-7 right-7"/>
+                        <ul>
+                            <li>
+                                <h1 className='absolute bottom-8 text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
+                            </li>
+                            <li>
+                                <button onClick={goToAddress} className='w-20 h-10 absolute bottom-7 right-4 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-800 transition'>
+                                    CheckOut
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             )}
             {isMenuRendered &&(
-                <div className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
                         <button onClick={() => setIsMenuOpen(false)} className='absolute top-6 left-9 text-gray-600 hover:text-black'>
                             <IoClose size={24}/>
                         </button>
@@ -801,8 +753,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isBeoLit20Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoLit20Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoLit20Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -811,18 +763,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images[currentIndex]} alt="Beolit 20" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -849,8 +801,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isBeoA5Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoA5Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoA5Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -859,18 +811,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images2[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images2[currentIndex]} alt="A5" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -896,8 +848,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isBeoExOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoExOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()}  className="modalProduct">
                         <button onClick={() => setIsBeoExOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -906,18 +858,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images3[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images3[currentIndex]} alt="Explore" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -943,8 +895,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isBeoA1Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoA1Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBeoA1Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -953,18 +905,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images4[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images4[currentIndex]} alt="A1" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -990,8 +942,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isOnyx8Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsOnyx8Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsOnyx8Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1000,18 +952,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images5[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images5[currentIndex]} alt="Onyx8" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -1037,8 +989,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isGoPlayOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsGoPlayOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsGoPlayOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1047,18 +999,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images6[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images6[currentIndex]} alt="Go + Play 3" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -1084,8 +1036,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isAura3Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsAura3Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsAura3Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1094,18 +1046,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images7[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images7[currentIndex]} alt="Aura Studio 4" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -1131,8 +1083,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isOnyx9Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsOnyx9Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsOnyx9Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1141,18 +1093,18 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images8[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images8[currentIndex]} alt="Onyx 9" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                    className="picbutton">
-                                                ‹
+                                                className="picbutton">
+                                                    ‹
                                             </button>
                                         </li>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                    className="picbutton">
-                                                ›
+                                                className="picbutton">
+                                                    ›
                                             </button>
                                         </li>
                                     </ul>
@@ -1178,8 +1130,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isFlip7ExOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsFlip7ExOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsFlip7ExOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1188,7 +1140,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images9[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images9[currentIndex]} alt="Flip 7 Tomorrowland" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1225,8 +1177,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isPulse5Open && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsPulse5Open(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsPulse5Open(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1235,7 +1187,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images10[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images10[currentIndex]} alt="Pulse 5" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1272,8 +1224,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isXtremeOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsXtremeOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsXtremeOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1282,7 +1234,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images11[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images11[currentIndex]} alt="Xtreme 3" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1319,8 +1271,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isBoomOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBoomOpen(false);}}  className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsBoomOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1329,7 +1281,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images12[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images12[currentIndex]} alt="Boombox 3" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1366,8 +1318,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isEmberOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsEmberOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsEmberOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1376,7 +1328,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images13[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images13[currentIndex]} alt="Emberton III" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1413,8 +1365,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isMiddleOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMiddleOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsMiddleOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1423,7 +1375,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images14[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images14[currentIndex]} alt="Middleton II" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
@@ -1460,8 +1412,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isKilburnOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsKilburnOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsKilburnOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1470,7 +1422,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images15[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images15[currentIndex]} alt="Kilburn III" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
@@ -1507,8 +1459,8 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 </div>
             )}
             {isWillenOpen && (
-                <div className="modalproductbg">
-                    <div className="modalProduct">
+                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsWillenOpen(false);}} className="modalproductbg">
+                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
                         <button onClick={() => setIsWillenOpen(false)} className="closebutton">
                             <IoClose size={24} />
                         </button>
@@ -1517,7 +1469,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                         <ul className='flex flex-row space-x-32'>
                             <li>
                                 <div className="divproduct">
-                                    <img src={images16[currentIndex]} alt="" className="productpic"/>
+                                    <img src={images16[currentIndex]} alt="Willen II" className="productpic"/>
                                     <ul className='ulpicbutton'>
                                         <li>
                                             <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 

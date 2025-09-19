@@ -1,6 +1,5 @@
 import ShoppingCart from "/src/assets/icons8-cart-24.png";
 import Menu from "/src/assets/icons8-menu.svg";
-import { IoClose } from 'react-icons/io5';
 import React, { useState , useEffect} from 'react'
 
 
