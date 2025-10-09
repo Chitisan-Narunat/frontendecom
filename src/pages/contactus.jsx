@@ -31,27 +31,19 @@ function Contactus() {
 
     const navigate = useNavigate();
     const goToFAQ = () =>{
-      navigate('/pages/FAQ'); 
+        navigate('/pages/FAQ'); 
     }
-
-    const navigatE = useNavigate();
     const goToHome = () =>{
-        navigatE('/pages/Home'); 
+        navigate('/pages/Home'); 
     }
-    
-    const Navigate2 = useNavigate();
     const goToSpeakers = () =>{
-        Navigate2('/pages/Speakers'); 
+        navigate('/pages/Speakers'); 
     }
-    
-    const navigate5 = useNavigate();
     const goToHeadphones = () =>{
-        navigate5('/pages/Headphones')
+        navigate('/pages/Headphones')
     }
-
-    const navigate6 = useNavigate();
     const goToSoundbars = () =>{
-        navigate6('/pages/Soundbars')
+        navigate('/pages/Soundbars')
     }
 
     const [form , setForm] = useState({
@@ -79,7 +71,7 @@ function Contactus() {
                 }
                 else if (role === "Admin"){
                     alert('Login Completed')
-                    navigatE("/pages/Admin")
+                    navigate("/pages/Admin")
                     window.location.reload();
                 }
                 else{

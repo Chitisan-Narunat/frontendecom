@@ -180,9 +180,6 @@ function Address() {
         }
     }, [isMenuOpen]);
 
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -201,7 +198,6 @@ function Address() {
         });
     }
 
-
 /////////////////////////////// ลบ cartitem. /////////////////////////////////
 
     async function removeItem(rowId) {
@@ -211,7 +207,6 @@ function Address() {
         });
          refreshCart();
     }   
-
 
 /////////////////////////////// เพิ่ม Quantity. /////////////////////////////////
 
@@ -224,7 +219,6 @@ function Address() {
         });
         refreshCart();
     }
-
 
 /////////////////////////////// ลด Quantity. /////////////////////////////////
 
@@ -261,7 +255,7 @@ function Address() {
                                 <div className="mt-3 absolute left-6 right-6 bottom-6 top-16 overflow-y-auto">
                                     {address.items.length === 0 ? (
                                         <button >
-            
+
                                         </button>
                                     ) : (
                                         <ul className="flex flex-wrap gap-3">
@@ -384,8 +378,6 @@ function Address() {
                         </li>
                     </ul>
                 </div>
-            </div>
-            <div className='bg-gray-400 h-[200px]'>
             </div>
             {isMenuRendered &&(
                 <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>

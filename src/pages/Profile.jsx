@@ -6,6 +6,7 @@ import axios from 'axios';
 import icon1 from "/src/assets/9022927_user_circle_duotone_icon.svg"
 import { getImageById } from "/Styles/product-images";
 import { jwtDecode } from 'jwt-decode';
+import { api } from '../../services/api';
 
 
 function Profile() {
@@ -39,26 +40,18 @@ function Profile() {
     const goToHome = () =>{
       navigate('/pages/Home'); 
     }
-
-    const Navigate = useNavigate();
     const goToSpeakers = () =>{
-      Navigate('/pages/Speakers'); 
+      navigate('/pages/Speakers'); 
     }
-
-    const navigate4 = useNavigate();
     const goToHeadphones = () =>{
-        navigate4('/pages/Headphones')
+      navigate('/pages/Headphones')
     }
-
-    const navigate12 = useNavigate();
     const goToSoundbars = () =>{
-        navigate12('/pages/Soundbars')
+      navigate('/pages/Soundbars')
     }
-
-    const navigate14 = useNavigate();
-        const goToAddress = () =>{
-            navigate14('/pages/Address')
-        }
+    const goToAddress = () =>{
+      navigate('/pages/Address')
+    }
 
     useEffect(() => {
       if (isMenuOpen) {
@@ -71,14 +64,14 @@ function Profile() {
     }, [isMenuOpen]);
 
     useEffect(() => {
-            if (isCartOpen) {
-                setIsCartRendered(true);
-                setTimeout(() => setIsCartVisible(true), 10);
-            } else {
-                setIsCartVisible(false);
-                setTimeout(() => setIsCartRendered(false), 300);
-            }
-        }, [isCartOpen]);
+      if (isCartOpen) {
+        setIsCartRendered(true);
+        setTimeout(() => setIsCartVisible(true), 10);
+      } else {
+        setIsCartVisible(false);
+        setTimeout(() => setIsCartRendered(false), 300);
+      }
+    }, [isCartOpen]);
 
     useEffect(() => { if (isCartVisible) refreshCart(); }, [isCartVisible]);
 
@@ -86,25 +79,25 @@ function Profile() {
     const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
 
     async function refreshCart() {
-        const { data } = await axios.get(`http://localhost:5283/api/OrderItem/Current`, { headers: auth() });
+      const { data } = await api.get(`/OrderItem/Current`, { headers: auth() });
         setCart({
-            orderId: data?.orderId ?? 0,
-            items: data?.items ?? [],
-            actualPrice: data?.actualPrice ?? 0
+          orderId: data?.orderId ?? 0,
+          items: data?.items ?? [],
+          actualPrice: data?.actualPrice ?? 0
         });
     }
 
     async function removeItem(rowId) {
-    await axios.delete(`http://localhost:5283/api/OrderItem/DropItem`,  
+      await api.delete(`/OrderItem/DropItem`,  
         { 
-            params: { OrderItemsId: rowId }, headers: auth() 
+          params: { OrderItemsId: rowId }, headers: auth() 
         });
-         refreshCart();
+        refreshCart();
     }   
 
 
     async function incQty(rowId, qty) {
-    await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
+      await api.put(`/OrderItem/EditQuantity`,
         { quantity: qty + 1 },
         { 
             params: { OrderItemsId: rowId },
@@ -114,27 +107,27 @@ function Profile() {
     }
 
     async function decQty(rowId, qty) {
-    if (qty <= 1) return;
-    await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
+      if (qty <= 1) return;
+      await api.put('/OrderItem/EditQuantity',
         { quantity: qty - 1 },
         { 
-            params: { OrderItemsId: rowId },
-            headers: { "Content-Type": "application/json",...auth()}
+          params: { OrderItemsId: rowId },
+          headers: { "Content-Type": "application/json",...auth()}
         });    
         refreshCart ();
     }   
 
     const renderContent = () => {
-    switch (activeIndex) {
-      case 0: return <ProfileTab />;
-      case 1: return <OrderHistoryTab />;
-      case 2: return <CardDetailTab />;
-      case 3: return <FavouriteTab />;
-      case 4: return <AddressTab />
-      case 5: return <LogoutTab onLogout={() => navigate('/login')} />;
-      default: return null;
-    }
-  };
+      switch (activeIndex) {
+        case 0: return <ProfileTab />;
+        case 1: return <OrderHistoryTab />;
+        case 2: return <CardDetailTab />;
+        case 3: return <FavouriteTab />;
+        case 4: return <AddressTab />
+        case 5: return <LogoutTab onLogout={() => navigate('/login')} />;
+        default: return null;
+      }
+    };
 
 
   return (
@@ -387,8 +380,8 @@ function Profile() {
     );
   }
 
-
   function FavouriteTab(){
+
     return (
       <div className='space-y-6'>
         <h1 className='text-2xl font-semibold'>My Favourite</h1>
@@ -401,13 +394,13 @@ function Profile() {
 
   function AddressTab(){
 
-  const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
-  const [address, setAddress] = useState({ addressId: 0, items: []});
+    const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+    const [address, setAddress] = useState({ addressId: 0, items: []});
 
-  const [isAddressOpen, setIsAddressOpen] = useState(false)
+    const [isAddressOpen, setIsAddressOpen] = useState(false)
 
-  const [_editingItem, setEditingItem] = useState(null);
-  void _editingItem;
+    const [_editingItem, setEditingItem] = useState(null);
+    void _editingItem;
 
     async function refreshAddress() {
       const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
@@ -427,16 +420,16 @@ function Profile() {
       refreshAddress();
     }
 
-   const[editform, setEditform] = useState({
-          AddressId: '',
-          FirstName: '',
-          LastName: '',
-          AddressName: '',
-          District: '',
-          Province: '',
-          PostalCode: '',
-          PhoneNumber: ''
-      });
+    const[editform, setEditform] = useState({
+      AddressId: '',
+      FirstName: '',
+      LastName: '',
+      AddressName: '',
+      District: '',
+      Province: '',
+      PostalCode: '',
+      PhoneNumber: ''
+    });
 
 
     function openEdit(item) {
@@ -464,33 +457,32 @@ function Profile() {
     }
 
     async function handleSave(e) {
-    e.preventDefault();
+      e.preventDefault();
 
-    if (!editform.AddressId) {
-      alert("ไม่มีที่อยู่นี้");
-      return;
-    }
-
-    await axios.put(
-      "http://localhost:5283/api/Address/EditAddress",
-      {
-        FirstName: editform.FirstName,
-        LastName: editform.LastName,
-        AddressName: editform.AddressName,
-        Province: editform.Province,
-        District: editform.District,
-        PostalCode: editform.PostalCode,
-        PhoneNumber: editform.PhoneNumber,
-      },
-      {
-        params: { AddressId: editform.AddressId },
-        headers: auth(),
+      if (!editform.AddressId) {
+        alert("ไม่มีที่อยู่นี้");
+        return;
       }
-    );
 
-    await refreshAddress();
-    closeModal();
-  }
+      await axios.put(
+        "http://localhost:5283/api/Address/EditAddress",
+        {
+          FirstName: editform.FirstName,
+          LastName: editform.LastName,
+          AddressName: editform.AddressName,
+          Province: editform.Province,
+          District: editform.District,
+          PostalCode: editform.PostalCode,
+          PhoneNumber: editform.PhoneNumber,
+        },
+        {
+          params: { AddressId: editform.AddressId },
+          headers: auth(),
+        }
+      );
+      await refreshAddress();
+      closeModal();
+    }
 
 
     return (
@@ -499,26 +491,27 @@ function Profile() {
           <h1 className='text-2xl font-semibold'>My Address</h1>
           <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 w-full h-fit text-center flex items-center justify-start bg-white flex-col space-y-4'>
             {address.items.length === 0 ? (
-            <p className="text-gray-500 items-center justify-center flex">ยังไม่มีที่อยู่</p>
-            ) : (
-              address.items.map(item => (
-                <div key={item.addressId} className='bg-gray-200 w-full h-[100px] rounded-lg text-left p-3'>
-                  <button onClick={() => removeAddress(item.addressId)} className='absolute right-[87px] -mt-2'>x</button>
-                  <h1 className='font-medium'>
-                    {item.firstname} {item.lastname}
-                  </h1>
-                  <h1 className='font-medium text-sm mt-[0.5px]'>
-                    {item.name}, {item.district}, {item.province} {item.postalCode}
-                  </h1>
-                  <h1 className='font-medium text-sm'>
-                    PhoneNumber: {item.phoneNumber}
-                  </h1>
-                  <button className='text-xs ml-[990px] rounded-lg bg-gray-300 w-10 -mt-1 absolute hover:bg-gray-400' onClick={() => openEdit(item)}>
-                    Edit
-                  </button>
-                </div>
-              ))
-            )}
+              <p className="text-gray-500 items-center justify-center flex">ยังไม่มีที่อยู่</p>
+              ) : (
+                address.items.map(item => (
+                  <div key={item.addressId} className='bg-gray-200 w-full h-[100px] rounded-lg text-left p-3'>
+                    <button onClick={() => removeAddress(item.addressId)} className='absolute right-[87px] -mt-2'>x</button>
+                    <h1 className='font-medium'>
+                      {item.firstname} {item.lastname}
+                    </h1>
+                    <h1 className='font-medium text-sm mt-[0.5px]'>
+                      {item.name}, {item.district}, {item.province} {item.postalCode}
+                    </h1>
+                    <h1 className='font-medium text-sm'>
+                      PhoneNumber: {item.phoneNumber}
+                    </h1>
+                    <button className='text-xs ml-[990px] rounded-lg bg-gray-300 w-10 -mt-1 absolute hover:bg-gray-400' onClick={() => openEdit(item)}>
+                      Edit
+                    </button>
+                  </div>
+                ))
+              )
+            }
           </div>
         </div>
         {isAddressOpen && (
@@ -535,7 +528,7 @@ function Profile() {
                 <input type="text" placeholder='Province' name='Province' className='w-[500px] border p-2 rounded' value={editform.Province} onChange={(e) => onChangeField("Province", e.target.value)} required/>
                 <input type="text" placeholder="District" name='District' className="w-[500px] border p-2 rounded" value={editform.District} onChange={(e) => onChangeField("District", e.target.value)} required/>
                 <input type="text" pattern="[0-9]{5}" maxLength={5} placeholder="PostalCode" name='PostalCode' className="w-[500px] border p-2 rounded" value={editform.PostalCode} onChange={(e) => {
-                    const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+                  const v = e.target.value.replace(/\D/g, "").slice(0, 5);
                     onChangeField("PostalCode", v);
                   }} required/>
                 <input type="text" pattern="[0-9]{10}" maxLength={10} placeholder="PhoneNumber" name='PhoneNumber' className="w-[500px] border p-2 rounded" value={editform.PhoneNumber} onChange={(e) => {

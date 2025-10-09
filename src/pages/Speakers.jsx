@@ -5,10 +5,11 @@ import { IoClose } from 'react-icons/io5';
 import axios from 'axios';
 import { getImageById } from "/Styles/product-images"; 
 import { jwtDecode } from 'jwt-decode';
-import { speakerImages } from '../assets';
-import { iconImages } from '../assets';
+import Endbar from '../components/Endbar';
+import { api } from '../../services/api';
+import ProductGrid from '../components/ProductCard';
 
-function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onOnyx8Click, onGoPlayClick, onAura3Click, onOnyx9Click, onFlip7ExClick, onPulse5Click, onXtremeClick, onBoomClick, onEmberClick, onMiddleClick, onKilburnClick, onWillenClick}) {
+function Speakers() {
     
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCartRendered, setIsCartRendered] = useState(false);
@@ -18,199 +19,44 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
     const [isMenuRendered, setIsMenuRendered] = useState(false);
     const [isMenuVisible, setIsMenuVisible] = useState(false);
 
+    const [isFavOpen, setIsFavOpen] = useState(false);
+    const [isFavRendered, setIsFavRendered] = useState(false);
+    const [isFavVisible, setIsFavVisible] = useState(false);
+
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
-    const [isBeoLit20Open, setIsBeoLit20Open] = useState(false);
-    const [isBeoA5Open, setIsBeoA5Open] = useState(false);
-    const [isBeoExOpen, setIsBeoExOpen] = useState(false);
-    const [isBeoA1Open, setIsBeoA1Open] = useState(false);
-    const [isOnyx8Open, setIsOnyx8Open] = useState(false);
-    const [isGoPlayOpen, setIsGoPlayOpen] = useState(false);
-    const [isAura3Open, setIsAura3Open] = useState(false);
-    const [isOnyx9Open, setIsOnyx9Open] = useState(false);
-    const [isFlip7ExOpen, setIsFlip7ExOpen] = useState(false);
-    const [isPulse5Open, setIsPulse5Open] = useState(false);
-    const [isXtremeOpen, setIsXtremeOpen] = useState(false);
-    const [isBoomOpen, setIsBoomOpen] = useState(false);
-    const [isEmberOpen, setIsEmberOpen] = useState(false);
-    const [isMiddleOpen, setIsMiddleOpen] = useState(false);
-    const [isKilburnOpen, setIsKilburnOpen] = useState(false);
-    const [isWillenOpen, setIsWillenOpen] = useState(false);
-
-
-    { ("onClick")
-    onBeoLit20Click = (() => setIsBeoLit20Open(true));
-    onBeoA5Click = (() => setIsBeoA5Open(true));
-    onBeoExClick = (() => setIsBeoExOpen(true));
-    onBeoA1Click = (() => setIsBeoA1Open(true));
-    onOnyx8Click = (() => setIsOnyx8Open(true));
-    onGoPlayClick = (() => setIsGoPlayOpen(true));
-    onAura3Click = (() => setIsAura3Open(true));
-    onOnyx9Click = (() => setIsOnyx9Open(true));
-    onFlip7ExClick = (() => setIsFlip7ExOpen(true));
-    onPulse5Click = (() => setIsPulse5Open(true));
-    onXtremeClick = (() => setIsXtremeOpen(true));
-    onBoomClick = (() => setIsBoomOpen(true));
-    onEmberClick = (() => setIsEmberOpen(true));
-    onMiddleClick = (() => setIsMiddleOpen(true));
-    onKilburnClick = (() => setIsKilburnOpen(true));
-    onWillenClick = (() => setIsWillenOpen(true));
-
-    
-    }    
-    
-//////////////////////////////ImageModal////////////////////////////////
-
-    const images = [
-        "/src/assets/beolit-20-001.png",
-        "/src/assets/BL20_greey_front_2.png",
-        "/src/assets/BL20_grey_side2.png"
-    ];
-
-    const images2 =[
-        "/src/assets/Beosound_A5_Weave-Image_1.png",
-        "/src/assets/Beosound_A5_-_PDP_-_Image_7.png",
-        "/src/assets/Beosound_A5_-_PDP_-_Image_9.png",
-        "/src/assets/Beosound_A5_-_PDP_-_Image_4.png",
-    ];
-
-    const images3 =[
-        "/src/assets/Packshot-Beosound-Explore-Grey-Mist-0034-Perspective-1200x1200.png",
-        "/src/assets/Packshot-Beosound-Explore-Grey-Mist-0040-Perspective-1200x1200.png",
-        "/src/assets/Packshot-Beosound-Explore-Grey-Mist-0037-Perspective-1200x1200.png"
-    ];
-
-    const images4 =[
-        "/src/assets/Packshot-Beosound-A1-3rd-Gen-Natural-Aluminium-Perspective-0003-s1200x1200px.png",
-        "/src/assets/Packshot-Beosound-A1-3rd-Gen-Natural-Aluminium-Front-0001-s1200x1200px.png",
-        "/src/assets/Packshot-Beosound-A1-3rd-Gen-Natural-Aluminium-Perspective-0005-s1200x1200px.png"
-    ];
-
-    const images5 =[
-        "/src/assets/1_HK_ONYX_STUDIO_8_CHAMPAGNE_HERO_0154_x3.png",
-        "/src/assets/HK_ONYX_STUDIO_8_CHAMPAGNE_FRONT_0155_x4.png",
-        "/src/assets/3_HK_ONYX_STUDIO_8_CHAMPAGNE_LEFT_36153_x3.png"
-    ];
-
-    const images6 =[
-        "/src/assets/HK_GO_AND_PLAY_3_HERO_BLACK_43488_x7.png",
-        "/src/assets/HK_GO_AND_PLAY_3_LEFT_BLACK_43477_x1.png",
-        "/src/assets/HK_GO_AND_PLAY_3_FRONT_BLACK_43494_x1.png",
-    ];
-
-    const images7 =[
-        "/src/assets/HK_AURA_STUDIO_4_BLACK_HERO_GALAXY_41834_x5.png",
-        "/src/assets/HK_AURA_STUDIO_4_BLACK_LEFT_41851_x3.png",
-        "/src/assets/HK_AURA_STUDIO_4_TOP_MAIN_GALAXY_x2.png"
-    ];
-
-    const images8 =[
-        "/src/assets/HK_ONYX_STUDIO_9_GREY_FRONT_072_x1_(1).png",
-        "/src/assets/HK_ONYX_STUDIO_9_GREY_HERO_070_x1_(1).png",
-        "/src/assets/HK_ONYX_STUDIO_9_GREY_RIGHT_024_x2_(1).png"
-    ];
-
-    const images9 =[
-        "/src/assets/LS_JBL_FLIP_7_Tomorrowland_Front_1605x1605px_1024x1024.webp.png",
-        "/src/assets/JBL_Flip_7_Tomorrowland_Hero_1605x1605px_1024x1024.webp",
-        "/src/assets/LS_JBL_FLIP_7_Tomorrowland_Left_1605x1605px_1024x1024.webp.png"
-    ];
-
-    const images10 =[
-        "/src/assets/2_JBL_PULSE_5_FRONT_535x535px_600x600.webp",
-        "/src/assets/3_JBL_PULSE_5_BACK_535x535px_600x600.png",
-        "/src/assets/7_JBL_PULSE_5_BOTTOM_HERO_535x535px_600x600.png"
-    ];
-
-    const images11 =[
-        "/src/assets/2.JBL_XTREME_3_FRONT_535x535px_1024x1024.png",
-        "/src/assets/JBL_XTREME_3_HERO_535x535px_1024x1024.png",
-        "/src/assets/4.JBL_XTREME_3_LEFT_RIGHT_535x535px_1024x1024.png"
-    ];
-
-    const images12 =[
-        "/src/assets/JBL_BOOMBOX3_WIFI_HERO_535x535px_1024x1024.png",
-        "/src/assets/4.JBL_BOOMBOX3_WIFI_FRONT_2_535x535px_1024x1024.png",
-        "/src/assets/6.JBL_BOOMBOX3_WIFI_LEFT_4_535x535px_1024x1024.png"
-    ];
-
-    const images13 =[
-        "/src/assets/พื้นหลัง emberton-iii-front-desktop-7 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง emberton-iii-side-desktop-1 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง emberton-iii-above-desktop-4 ถูกเอาออก.png"
-    ];
-
-    const images14 =[
-        "/src/assets/พื้นหลัง Gallery-Desktop-Middleton-II-Cream-01 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง Gallery-Desktop-Middleton-II-Cream-06 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง Gallery-Desktop-Middleton-II-Cream-04 ถูกเอาออก.png"
-    ];
-
-    const images15 =[
-        "/src/assets/พื้นหลัง gallery-assets-desktop-6 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง gallery-assets-desktop ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง gallery-assets-desktop-3 ถูกเอาออก.png"
-    ];
-
-    const images16 =[
-        "/src/assets/พื้นหลัง willen-ii-front-desktop-1 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง willen-ii-above-desktop-3 ถูกเอาออก.png",
-        "/src/assets/พื้นหลัง willen-ii-hand-desktop-6 ถูกเอาออก.png"
-    ];
-
+    const [openProduct, setOpenProduct] = useState(null);
+    const [images, setImages] = useState([]);     
     const [currentIndex, setCurrentIndex] = useState(0);
-
-//////////////////////////////Imagemodal////////////////////////////////
-
-
-//////////////////////////////Navigate////////////////////////////////
+    const [, setLoadingImgs] = useState(false);
 
     const navigate = useNavigate();
     const goToHome = () =>{
         navigate('/pages/Home'); 
     }
-
-    const Navigate = useNavigate();
     const goToSpeakers = () =>{
-        Navigate('/pages/Speakers'); 
+        navigate('/pages/Speakers'); 
     }
-
-    const navigate4 = useNavigate();
     const goToHeadphones = () =>{
-        navigate4('/pages/Headphones')
+        navigate('/pages/Headphones')
     }
-
-    const navigate12 = useNavigate();
     const goToSoundbars = () =>{
-        navigate12('/pages/Soundbars')
+        navigate('/pages/Soundbars')
     }
-
-    const navigate11 = useNavigate();
     const goToAddress = () =>{
-        navigate11('/pages/Address')
+        navigate('/pages/Address')
     }
-
-//////////////////////////////Navigate////////////////////////////////
-
-
-//////////////////////////////Form////////////////////////////////
 
     const [form , setForm] = useState({
         email: '',
         passWord: '',
     });
-
     const [form2 , setForm2] = useState({
         email: '',
         userName: '',
         passWord: '',
     });
-
-//////////////////////////////Form////////////////////////////////
-
-
-//////////////////////////////Message////////////////////////////////
 
     const [message , setMessage] = useState();
     const handleChange = (e) =>{
@@ -219,7 +65,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             [e.target.name]:e.target.value,
         });
     };
-
     const [message2] = useState();
     const handleChange2 = (e) =>{
         setForm2({
@@ -227,11 +72,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             [e.target.name]:e.target.value,
         });
     };
-
-//////////////////////////////Message////////////////////////////////
-
-
-//////////////////////////////Login////////////////////////////////
 
     const handleLogin = async(e) =>{
         e.preventDefault(); //กันไม่ให้ฟอร์ม refresh ตอนกดsubmit
@@ -273,11 +113,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
         };
     };
 
-//////////////////////////////Login////////////////////////////////
-
-
-//////////////////////////////Register////////////////////////////////
-
     const handleRegister = async(e) =>{
         e.preventDefault();
         try{
@@ -296,11 +131,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             }
         };
     };
-
- //////////////////////////////Register////////////////////////////////
-
-
- //////////////////////////////UseEffect////////////////////////////////
 
     useEffect(() => {
         if (isMenuOpen) {
@@ -324,15 +154,10 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
 
     useEffect(() => { if (isCartVisible) refreshCart(); }, [isCartVisible]);
 
- //////////////////////////////UseEffect////////////////////////////////
-
-
-//////////////////////////////Cart////////////////////////////////
-
     const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
     const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
 
-    async function refreshCart() { //re cart
+    async function refreshCart() { 
         const { data } = await axios.get(`http://localhost:5283/api/OrderItem/Current`, { headers: auth() });
         setCart({
             orderId: data?.orderId ?? 0,
@@ -341,7 +166,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
         });
     }
 
-/////////////DelProduct/////////////////
     async function removeItem(rowId) { 
     await axios.delete(`http://localhost:5283/api/OrderItem/DropItem`,  
         { 
@@ -350,7 +174,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
          refreshCart();
     }   
 
-/////////////+Quantity/////////////////
     async function incQty(rowId, qty) {
     await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
         { quantity: qty + 1 },
@@ -361,7 +184,6 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
         refreshCart();
     }
 
-/////////////-Quantity/////////////////
     async function decQty(rowId, qty) {
     if (qty <= 1) return;
     await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
@@ -373,35 +195,13 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
         refreshCart ();
     }   
 
-//////////////////////////////Cart////////////////////////////////
-
-    const closeAllModals = () => {
-        setIsBeoLit20Open(false);
-        setIsBeoA5Open(false);
-        setIsBeoExOpen(false);
-        setIsBeoA1Open(false);
-        setIsOnyx8Open(false);
-        setIsGoPlayOpen(false);
-        setIsAura3Open(false);
-        setIsOnyx9Open(false);
-        setIsFlip7ExOpen(false);
-        setIsPulse5Open(false);
-        setIsXtremeOpen(false);
-        setIsBoomOpen(false);
-        setIsEmberOpen(false);
-        setIsMiddleOpen(false);
-        setIsKilburnOpen(false);
-        setIsWillenOpen(false);
-    };
-//////////////////////////////Add Modal////////////////////////////////
-
     const addToCart = async (ProductId) => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
                 alert("กรุณาเข้าสู่ระบบก่อน");
 
-                closeAllModals();
+                setOpenProduct(false);
                 setIsLoginOpen(true)         
                 return;
             }
@@ -431,10 +231,10 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             if (Number.isFinite(oid) && oid > 0) {
                 localStorage.setItem("currentOrderId", String(oid));
             }
-    
-            closeAllModals();
-            setIsCartOpen(true);
+
             alert("เพิ่มลงตะกร้าแล้ว");
+            setOpenProduct(false);
+            setIsCartOpen(true);
 
         } catch(error){
             const status = error?.response?.status;
@@ -486,7 +286,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                 localStorage.setItem("currentOrderId", String(oid));
             }
 
-            closeAllModals();
+            setOpenProduct(false);
             navigate("/pages/Address");
             
         } catch(error){
@@ -503,163 +303,176 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
             setMessage(typeof raw === "string" ? raw : "failed");
         }
     };
+    
+    const API = "http://localhost:5283/api";
+    const [products, setProducts] = useState([]);
+    const token = localStorage.getItem("token");
 
-//////////////////////////////Add Modal////////////////////////////////
 
+    useEffect(() => {
+        fetch(`${API}/Product/GetProduct`)
+        .then((r) => {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.json();
+        })
+        .then(setProducts)
+        .catch((err) => console.error(err));
+    }, []);
+
+    const cat1 = products.filter(p => (p.categoryId ?? p.CategoryId) === 1);
+
+
+    const [favList, setFavList] = useState([]);
+    const [loadingFavs, setLoadingFavs] = useState(false);
+
+    useEffect(() => {
+        if (!openProduct) return;
+        let alive = true;
+        setLoadingImgs(true);
+        fetch(`${API}/products/${openProduct.productId}/images-blob`)
+        .then(r => r.json())
+        .then(list => {
+            if (!alive) return;
+            const urls = list
+            .sort((a,b) => (b.isPrimary - a.isPrimary) || (a.sortOrder - b.sortOrder))
+            .map(x => `${API}/products/${openProduct.productId}/images-blob/${x.id}?v=${x.createdAt}`);
+            setImages(urls);
+            setCurrentIndex(0);
+        })
+        .catch(console.error)
+        .finally(() => setLoadingImgs(false));
+        return () => { alive = false; };
+    }, [openProduct]);
+
+
+    async function refreshFavs() {
+        try {
+            setLoadingFavs(true);
+            const { data } = await api.get("/Product/GetProduct", { params: { _t: Date.now() } });
+            const favOnly = (data || []).filter(p => !!(p.isFavourite ?? p.IsFavourite));
+            setFavList(favOnly);
+        } catch (e) {
+            console.error("load favs failed", e?.response?.status, e?.response?.data || e.message);
+            setFavList([]);
+        } finally {
+            setLoadingFavs(false);
+        }
+    }
+            
+    // เปิดแผงเมื่อมองเห็น → ดึงรายการล่าสุดทุกครั้ง
+    useEffect(() => { if (isFavVisible) refreshFavs(); }, [isFavVisible]);
+            
+    useEffect(() => {
+        if (!token) {
+            setFavList([]); 
+            return;
+        }
+        refreshFavs();     
+    }, [token]);
+
+    useEffect(() => {
+        if (isFavOpen) {
+            setIsFavRendered(true);
+            setTimeout(() => setIsFavVisible(true), 10);
+        } else {
+            setIsFavVisible(false);
+            setTimeout(() => setIsFavRendered(false), 300);
+        }
+    }, [isFavOpen]);
+
+    const cartCount = Array.isArray(cart?.items) ? cart.items.length : 0;
+    
+            useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (token) refreshCart();        // ✅ โหลดครั้งแรกเมื่อมี token
+    }, []);
+    
+    useEffect(() => {
+      // ถ้า token เปลี่ยน (login/logout) ก็รีเฟรช
+      const token = localStorage.getItem("token");
+      if (token) refreshCart();
+      else setCart({ orderId: 0, items: [], actualPrice: 0 });
+    }, [isLoginOpen]); // หรือจะผูกกับสถานะอื่นที่เปลี่ยนตอน login สำเร็จ
+    
 
     return (
-        <main>
-            <Navbar onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)} onLoginClick={() => setIsLoginOpen(true)} onRegisterClick={() => setIsRegisterOpen(true)}/>
-            <div className='bg-[#edeef0] h-[1800px] flex items-start justify-center'>
-                <div className='container text-center mx-auto'>
-                    <h1 className='text-3xl text-[#212529] text-left font-extrabold -ml-11 mt-28 font-playfair'>Speakers</h1>
-                    <div className='myContainer'>
-                        <div onClick={onBeoLit20Click} className='containerBox relative'>
-                            <img src={speakerImages.Beolit20} alt="Beolit 20" className='imageInBox'/>
-                            <h3 className='headText'>Beolit 20</h3>
-                            <p className="desText">Bang&Olufsen</p>
-                            <p className="priceText">฿21990</p>
-                            <img src={iconImages.fav} alt="" className='w-5 h-5 absolute right-3 bottom-[6px]' />
-                        </div>
-                        <div onClick={onBeoA5Click} className='containerBox relative'>
-                            <img src={speakerImages.Bo6} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Beosound A5</h3>
-                            <p className="desText">Bang&Olufsen</p>
-                            <p className="priceText">฿64700</p>
-                        </div>
-                        <div onClick={onBeoExClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo7} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Beosound Explore</h3>
-                            <p className="desText">Bang&Olufsen</p>
-                            <p className="priceText">฿7900</p>
-                        </div>
-                        <div onClick={onBeoA1Click} className='containerBox relative'>
-                            <img src={speakerImages.Bo5} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Beosound A1</h3>
-                            <p className="desText">Bang&Olufsen</p>
-                            <p className="priceText">฿14800</p>
-                        </div>
-                    </div>
-                    <div className='myContainer'>
-                        <div onClick={onOnyx8Click} className='containerBox relative'>
-                            <img src={speakerImages.Bo14} alt="Beolit 20" className='imageInBox'/>
-                            <h3 className='headText'>Onyx Studio 8</h3>
-                            <p className="desText">Harman Kardon</p>
-                            <p className="priceText">฿5290</p>
-                        </div>
-                        <div onClick={onGoPlayClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo15} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Go + Play 3</h3>
-                            <p className="desText">Harman Kardon</p>
-                            <p className="priceText">฿14900</p>
-                        </div>
-                        <div onClick={onAura3Click} className='containerBox relative'>
-                            <img src={speakerImages.Bo16} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Aura Studio 3</h3>
-                            <p className="desText">Harman Kardon</p>
-                            <p className="priceText">฿12900</p>
-                        </div>
-                        <div onClick={onOnyx9Click} className='containerBox relative'>
-                            <img src={speakerImages.Bo27} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Onyx Studio 9</h3>
-                            <p className="desText">Harman Kardon</p>
-                            <p className="priceText">฿11900</p>
-                        </div>
-                    </div>
-                    <div className='myContainer'>
-                        <div onClick={onFlip7ExClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo18} alt="Beolit 20" className='imageInBox'/>
-                            <h3 className='headText'>Flip 7 TOMORROWLAND</h3>
-                            <p className="desText">JBL</p>
-                            <p className="priceText">฿5990</p>
-                        </div>
-                        <div onClick={onPulse5Click} className='containerBox relative'>
-                            <img src={speakerImages.Bo19} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Pulse 5</h3>
-                            <p className="desText">JBL</p>
-                            <p className="priceText">฿11900</p>
-                        </div>
-                        <div onClick={onXtremeClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo20} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Xtreme 3</h3>
-                            <p className="desText">JBL</p>
-                            <p className="priceText">฿12900</p>
-                        </div>
-                        <div onClick={onBoomClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo21} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>Boombox 3 WIFI</h3>
-                            <p className="desText">JBL</p>
-                            <p className="priceText">฿24900</p>
-                        </div>
-                    </div>
-                    <div className='myContainer'>
-                        <div onClick={onEmberClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo23} alt="Beolit 20" className='imageInBox'/>
-                            <h3 className='headText'>EMBERTON III</h3>
-                            <p className="desText">Marshall</p>
-                            <p className="priceText">฿7690</p>
-                        </div>
-                        <div onClick={onMiddleClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo24} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>MIDDLETON II</h3>
-                            <p className="desText">Marshall</p>
-                            <p className="priceText">฿12900</p>
-                        </div>
-                        <div onClick={onKilburnClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo25} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>KILBURN III</h3>
-                            <p className="desText">Marshall</p>
-                            <p className="priceText">฿14990</p>
-                        </div>
-                        <div onClick={onWillenClick} className='containerBox relative'>
-                            <img src={speakerImages.Bo26} alt="Be 20" className='imageInBox'/>
-                            <h3 className='headText'>WILLEN II</h3>
-                            <p className="desText">Marshall</p>
-                            <p className="priceText">฿4290</p>
-                        </div>
-                    </div>
-                </div>
-            </div> 
+        <main className="min-h-screen">
+            <Navbar onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)} onLoginClick={() => setIsLoginOpen(true)} onRegisterClick={() => setIsRegisterOpen(true)} onFavClick={() => setIsFavOpen(true)} favCount={favList.length} cartCount={cartCount}/>
+            <div className="bg-[#edeef0] h-[1800px] flex items-start justify-center">
+                <ProductGrid title="Speakers" items={cat1} token={token} hasRemove={true} onSelect={(p) => setOpenProduct(p)}
+                onFavChange={(pid, next, meta) => {
+                    if (meta?.requireLogin) { setIsLoginOpen(true); return; }
+                    // 1) อัปเดตสถานะหัวใจในชุดรายการหลัก
+                    setProducts(prev =>
+                        prev.map(x =>
+                            (x.productId ?? x.ProductId) === pid
+                            ? { ...x, isFavourite: next }
+                            : x
+                        )
+                    );
+                    // 2) อัปเดตลิสต์ในแผง Favourite ทันที
+                    setFavList(prev => {
+                        const exists = prev.some(x => (x.productId ?? x.ProductId) === pid);
+                        if (next) {
+                            if (!exists) {
+                                 // หา item ตัวเต็มจาก cat1 ก่อน ไม่มีก็หาจาก products
+                                const full = (cat1 || []).find(x => (x.productId ?? x.ProductId) === pid) || (products || []).find(x => (x.productId ?? x.ProductId) === pid);
+                                return full ? [full, ...prev] : prev;
+                            }
+                            return prev;
+                        } else {
+                            return prev.filter(x => (x.productId ?? x.ProductId) !== pid);
+                        }
+                    });
+                }}/>
+            </div>
+            <Endbar />
             {isLoginOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative">
-                        <button onClick={() => setIsLoginOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black">
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-3 sm:p-0">
+                    <div className="bg-white rounded-xl shadow-lg w-full max-w-md relative">
+                        <button onClick={() => setIsLoginOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black" aria-label="Close login">
                             <IoClose size={24} />
                         </button>
-                        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-                        <form className="space-y-4">
-                            <input type="email" placeholder="Email" name='email' className="w-full border p-2 rounded" value={form.email} onChange={handleChange}/>
-                            <input type="password" placeholder="Password" name='passWord' className="w-full border p-2 rounded" value={form.passWord} onChange={handleChange}/>
-                            <button type='button' className="w-full bg-gray-600 text-white py-2 rounded hover:bg-blue-600" onClick={handleLogin}>Login
-                            </button>
-                            <p className='mt-auto font-light text-red-600 text-center'>{message}</p>
-                        </form>
+                        <div className="p-6 sm:p-7">
+                            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center">Login</h2>
+                            <form className="space-y-4">
+                                <input type="email" placeholder="Email" name="email" className="w-full border p-2 rounded" value={form.email} onChange={handleChange}/>
+                                <input type="password" placeholder="Password" name="passWord" className="w-full border p-2 rounded" value={form.passWord} onChange={handleChange}/>
+                                <button type="button" className="w-full bg-gray-700 text-white py-2 rounded hover:bg-gray-800 transition" onClick={handleLogin}>
+                                    Login
+                                </button>
+                                <p className="mt-auto font-light text-red-600 text-center">{message}</p>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
             {isRegisterOpen && (
-                <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                    <div className='bg-white rounded-lg shadow-lg p-6 w-96 relative'>
-                        <button onClick={() => setIsRegisterOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black">
-                            <IoClose size={24}/>
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-3 sm:p-0">
+                    <div className="bg-white rounded-xl shadow-lg w-full max-w-md relative">
+                        <button onClick={() => setIsRegisterOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black" aria-label="Close register">
+                            <IoClose size={24} />
                         </button>
-                        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-                        <form className="space-y-4">
-                            <input type="email" placeholder="Email" name='email' className="w-full border p-2 rounded" value={form2.email} onChange={handleChange2}/>
-                            <input type="text" placeholder='Username' name='userName' className='w-full border p-2 rounded' value={form2.userName} onChange={handleChange2}/>
-                            <input type="password" placeholder="Password" name='passWord' className="w-full border p-2 rounded" value={form2.passWord} onChange={handleChange2}/>
-                            <button className="w-full bg-gray-600 text-white py-2 rounded hover:bg-blue-600" onClick={handleRegister}>Register
-                            </button>
-                            <p className='mt-auto font-light text-red-600 text-center'>{message2}</p>
-                        </form>
+                        <div className="p-6 sm:p-7">
+                            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center">Register</h2>
+                            <form className="space-y-4">
+                                <input type="email" placeholder="Email" name="email" className="w-full border p-2 rounded" value={form2.email} onChange={handleChange2}/>
+                                <input type="text" placeholder="Username" name="userName" className="w-full border p-2 rounded" value={form2.userName} onChange={handleChange2}/>
+                                <input type="password" placeholder="Password" name="passWord" className="w-full border p-2 rounded" value={form2.passWord} onChange={handleChange2}/>
+                                <button className="w-full bg-gray-700 text-white py-2 rounded hover:bg-gray-800 transition" onClick={handleRegister} type="button">
+                                    Register
+                                </button>
+                                <p className="mt-auto font-light text-red-600 text-center">{message2}</p>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
-            {isCartRendered && (
+{isCartRendered && (
                 <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsCartOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
                         <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
-                            <IoClose size={24}/>
+                                <IoClose size={24}/>
                         </button>
                         <h2 className='text-2xl font-bold mb-4 text-center'>Cart</h2>
                         <hr className="border-black border-t-2 w-full"/>
@@ -679,7 +492,7 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                                                     <button className='absolute right-9 mt-2' onClick={() => removeItem(items.orderItemsId)}>
                                                         <IoClose size={17}/>
                                                     </button>
-                                                </li>
+                                                 </li>
                                                 <li>
                                                     <h3 className='text-xs font-sans'>{items.productDescription}</h3>
                                                 </li>
@@ -752,761 +565,121 @@ function Speakers({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, on
                     </div>
                 </div>
             )}
-            {isBeoLit20Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoLit20Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsBeoLit20Open(false)} className="closebutton">
-                            <IoClose size={24} />
+            {isFavRendered && (
+                <div onMouseDown={(e) => { if (e.target === e.currentTarget) setIsFavOpen(false); }} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isFavVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isFavVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+                        <button onClick={() => setIsFavOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
+                            <IoClose size={24}/>
                         </button>
-                        <h2 className="h2product">Beolit 20</h2>
-                        <h3 className='h3product'>Bang & Olufsen</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images[currentIndex]} alt="Beolit 20" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>This is 240 watts you can feel.</h2>
-                                <h3 className='mt-2'>Beolit 20 may be portable, but it packs a punch that rivals much bigger speakers. A combo of powerful amplifiers and drivers – including a wideband woofer for rumbling lows – gives your music the presence it deserves. And with 360-degree sound dispersion, everyone can enjoy it.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿21,990</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(1)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(1)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                        <p className='mt-auto font-light text-red-600 text-center'>{message}</p>
-                    </div>
-                </div>
-            )}
-            {isBeoA5Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoA5Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsBeoA5Open(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Beoplay A5</h2>
-                        <h3 className='h3product'>Bang & Olufsen</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images2[currentIndex]} alt="A5" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>Brings the bass. Reads the room.</h2>
-                                <h3 className='mt-2'>A two-way setup with four drivers. The most powerful woofer in any of our portable speakers. You won’t just hear Beosound A5 – you’ll feel it. We pack all of our latest acoustic advancements in one compact package. RoomSense adapts playback based on your space, so you always get the finest fidelity.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿64,700</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(2)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(2)} className='abbutton'>Buy
-                                </button>
-                            </li>
+                        <h2 className='text-2xl font-bold mb-4 text-center'>Favourite</h2>
+                        <hr className="border-black border-t-2 w-full"/>
+                        <ul className='mt-[14px] space-y-5'>
+                            {loadingFavs ? (
+                                <li className="text-center text-gray-500 py-10">กำลังโหลด...</li>
+                                ) : favList.length === 0 ? (
+                                <li className="text-center text-gray-500 py-10">ยังไม่มีสินค้าที่ชอบ</li>
+                                ) : (
+                                    favList.map(item => {
+                                        const pid = item.productId ?? item.ProductId;
+                                        const name = item.productName ?? item.ProductName ?? "";
+                                        const desc = item.productDescription ?? item.ProductDescription ?? "";
+                                        const img  = (item.primaryImageUrl ?? item.PrimaryImageUrl) || "/placeholder.png";
+                                        return (
+                                            <li key={pid}>
+                                                <div className='w-full h-28 rounded-lg bg-gray-100 flex space-x-3'>
+                                                    <div className='w-24 h-20 flex justify-center items-start'>
+                                                        <img className='w-24 h-20 ml-4 object-contain' src={img} alt={name} />
+                                                    </div>
+                                                    <ul className='flex flex-col flex-1 pr-10'>
+                                                        <li className='flex flex-row'>
+                                                            <h3 className='mt-3 font-bold truncate'>{name}</h3>
+                                                            <button
+                                                                className='absolute right-9 mt-2'
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        await api.delete('/Favourite/RemoveFavourite', { params: { ProductId: pid } });
+                                                                    } finally {
+                                                                        // เอาออกจากแผง
+                                                                        setFavList(prev => prev.filter(x => (x.productId ?? x.ProductId) !== pid));
+                                                                        // sync กับ products หลัก
+                                                                        setProducts(prev => prev.map(p => (p.productId ?? p.ProductId) === pid ? { ...p, isFavourite: false } : p));
+                                                                    }
+                                                                }}>
+                                                                <IoClose size={17}/>
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <h3 className='text-xs font-sans line-clamp-2'>{desc}</h3>
+                                                        </li>
+                                                        <li>
+                                                            <div className='bg-gray-200 rounded-sm w-full h-4'/>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        );
+                                    })
+                                )
+                            }
                         </ul>
                     </div>
                 </div>
             )}
-            {isBeoExOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoExOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()}  className="modalProduct">
-                        <button onClick={() => setIsBeoExOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Beosound Explore</h2>
-                        <h3 className='h3product'>Bang & Olufsen</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images3[currentIndex]} alt="Explore" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
+            {openProduct && (
+                <div
+                    onMouseDown={(e) => {
+                        if (e.target === e.currentTarget) setOpenProduct(null);
+                    }}
+                    className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-6"
+                >
+                    <div onMouseDown={(e) => e.stopPropagation()} className="bg-white text-black w-full max-w-5xl rounded-xl relative overflow-hidden" role="dialog" aria-label={openProduct.productName}>
+                        <button onClick={() => setOpenProduct(null)} className="absolute top-3 right-3 text-black/80 hover:text-black" aria-label="Close product">
+                            <IoClose size={24}/>
+                        </button>   
+                        <div className="p-4 sm:p-6">
+                            <h2 className="text-lg sm:text-2xl font-semibold">{openProduct.productName}</h2>
+                            <h3 className="text-sm sm:text-base text-black/80">{openProduct.productDescription}</h3>
+                            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                                <div className="relative">
+                                    <div className="w-full aspect-square bg-black/30 rounded-lg overflow-hidden">
+                                        {images.length > 0 && (
+                                            <img src={images[currentIndex]} alt={openProduct.productName} className="w-full h-full object-cover"/>
+                                        )}
+                                    </div>
+                                    {images.length > 1 && ( 
+                                        <>
+                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur" aria-label="Previous image">
+                                                ‹
                                             </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
+                                            <button onClick={() => setCurrentIndex((prev) => prev < images.length - 1 ? prev + 1 : 0)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur" aria-label="Next image">
+                                                ›
                                             </button>
-                                        </li>
-                                    </ul>
+                                        </>
+                                    )}
                                 </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>Made to last.</h2>
-                                <h3 className='mt-2'>Breaking new ground or walking the beaten path? It’s all the same to the sturdy Beosound Explore. Inside the scratch-resistant, anodised aluminium shell, a vertical rib structure provides serious protection from bumps. We design and build the aluminum shell of the speaker in Denmark as this is the only way we can ensure that it meets our strict requirements.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿7,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(3)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(3)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isBeoA1Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoA1Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsBeoA1Open(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Beosound A1</h2>
-                        <h3 className='h3product'>Bang & Olufsen</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images4[currentIndex]} alt="A1" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
+                                <div>
+                                    <h2 className="text-xl sm:text-2xl font-semibold">
+                                        {openProduct.productHeadText}
+                                    </h2>
+                                    <h3 className="mt-2 text-black/80">{openProduct.productBrand}</h3>
+                                    <p className="text-2xl sm:text-3xl font-bold mt-44"> ฿{Number(openProduct.productPrice).toLocaleString()}</p>
+                                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                                        <button onClick={() => addToCart(openProduct.productId)} className="flex-1 py-3 rounded-lg bg-white text-black font-semibold hover:bg-gray-200 transition">
+                                            Add
+                                        </button>
+                                        <button onClick={() => addToBuy(openProduct.productId)} className="flex-1 py-3 rounded-lg bg-gray-700 text-white font-semibold hover:bg-gray-600 transition">
+                                            Buy
+                                        </button>
+                                    </div>
+                                    <p className="mt-3 text-center text-sm text-red-400">{message}</p>
                                 </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>Small size. Serious sound.</h2>
-                                <h3 className='mt-2'>With the largest woofer in its class, Beosound A1 delivers dramatically deep bass. Not to mention clarity that lingers in the air, and a presence that fills any space – all wrapped up in a pack-friendly form.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿14,800</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(4)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(4)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isOnyx8Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsOnyx8Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsOnyx8Open(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Onyx Studio 8</h2>
-                        <h3 className='h3product'>Harman Kardon</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images5[currentIndex]} alt="Onyx8" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>SUPERIOR SOUND PERFORMANCE</h2>
-                                <h3 className='mt-2'>Harman Kardon's unrivaled acoustic engineering delivers rich, room-filling sound in any setting, whether you're listening to your favorite music or making crystal clear conference calls.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿5,290</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(5)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(5)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isGoPlayOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsGoPlayOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsGoPlayOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Go + Play 3</h2>
-                        <h3 className='h3product'>Harman Kardon</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images6[currentIndex]} alt="Go + Play 3" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>SUPERIOR SOUND PERFORMANCE</h2>
-                                <h3 className='mt-2'>The Harman Kardon Go + Play 3's three-way speaker design provides a detailed, clear stereo soundstage. Its down-firing 5” subwoofer delivers thunderous, accurate bass. Dual tweeters and mid-range drivers provide flawless vocal and instrument reproduction, while an additional front-mounted passive radiator kicks out the punch.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿14,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(6)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(6)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isAura3Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsAura3Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsAura3Open(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Aura Studio 4</h2>
-                        <h3 className='h3product'>Harman Kardon</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images7[currentIndex]} alt="Aura Studio 4" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>SUPERIOR SOUND PERFORMANCE</h2>
-                                <h3 className='mt-2'>Listen to music the way it was meant to be heard. Your music is reproduced with pinpoint accuracy, thanks to the speaker's distinct channels and dedicated amplifiers, reproducing every sonic detail with breathtaking clarity. Feel every beat from a 5.2" down-firing subwoofer powering deep, rich bass tones. And the wide soundstage of the 6-speaker array is the next best thing to experiencing your favorite songs live.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿12,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(7)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(7)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isOnyx9Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsOnyx9Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsOnyx9Open(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Onyx Studio 9</h2>
-                        <h3 className='h3product'>Harman Kardon</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images8[currentIndex]} alt="Onyx 9" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>SUPERIOR SOUND PERFORMANCE WITH A WIDER SOUNDSTAGE</h2>
-                                <h3 className='mt-2'>Get lost in your music with our new Constant Sound Field technology. The three-channel system, featuring a dedicated center channel for crystal-clear vocals surrounded by two specially designed tweeters, delivers a wider soundstage. This immersive experience brings your favorite songs to life all around you.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿11,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(8)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(8)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isFlip7ExOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsFlip7ExOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsFlip7ExOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Flip 7 Tomorrowland </h2>
-                        <h3 className='h3product'>JBL</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images9[currentIndex]} alt="Flip 7 Tomorrowland" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>พลังเสียงจัดเต็ม พร้อมลุยไปทุกที่</h2>
-                                <h3 className='mt-2'>ลำโพงพกพาที่ให้เสียงดังกระหึ่มด้วย AI Sound Boost กันน้ำ กันฝุ่น กันตกระดับ IP68 เล่นได้นานถึง 16 ชั่วโมง เชื่อมต่อลำโพง JBL อื่น ๆ ผ่าน Auracast™ ได้ง่าย ไม่ว่าที่ไหน Flip 7 ก็พร้อมสร้างบรรยากาศเสียงทรงพลังในขนาดกะทัดรัดให้ทุกโมเมนต์ของคุณ</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿5,990</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(9)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(9)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isPulse5Open && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsPulse5Open(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsPulse5Open(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Pulse 5</h2>
-                        <h3 className='h3product'>JBL</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images10[currentIndex]} alt="Pulse 5" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>เสียงที่สัมผัสได้ด้วยตา</h2>
-                                <h3 className='mt-2'>พลังเสียงที่มาพร้อมกับแสงไฟสีนวลหลากสี สวยงามจนต้องหยุดมอง JBL Pulse 5 ลำโพงที่มาพร้อมกับแสงไฟสีสันสวยงามรอบลำโพง สามารถขยับไปตามจังหวะเพลงโปรด และปรับแต่งสีของแสงไฟได้ตามที่คุณพอใจ</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿11,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(10)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(10)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isXtremeOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsXtremeOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsXtremeOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Xtreme 3</h2>
-                        <h3 className='h3product'>JBL</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images11[currentIndex]} alt="Xtreme 3" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))}
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>ปลดปล่อยพลังเสียงได้ทุกที่</h2>
-                                <h3 className='mt-2'>JBL Xtreme 3 ปล่อยพลังเสียงได้ครอบคลุมทุกพื้นที่ ให้เสียงเบสทุ้มลึกและแน่นทุกรายละเอียด ให้คุณอยู่ในโลกของเพลงโปรดที่คุณหลงใหลอย่างไม่มีขีดจำกัด ไม่ว่าจะที่สระว่ายน้ำ สวนหย่อม หรือแค่นั่งคุยกัน ด้วยพลังจากลำโพง 4 ตัว และ JBL Bass radiators 2 ตัว จะให้พลังเสียงที่ทำให้ทุกคนต้องเดินเข้ามาสนุกด้วยกัน และยังสามารถเชื่อมต่อลำโพงที่รองรับระบบ PartyBoost เข้าด้วยกัน เพื่อให้พลังเสียงที่เหนือกว่าอีกระดับ อีกทั้งยังสามารถสนุกได้ต่อเนื่องถึงแม้ว่าฝนจะตก ด้วยโครงสร้างที่กันน้ำกันฝุ่น JBL Xtreme 3 ยังมาพร้อมกับสายสะพายที่สะดวกในการขนย้าย และที่เปิดขวดบนสายสะพาย ทำให้คุณสามารถจัดปาร์ตี้ได้ทุกที่ และย้ายสถานที่ได้ทุกเวลา</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿12,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(11)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(11)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isBoomOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBoomOpen(false);}}  className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsBoomOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Boombox 3 WIFI</h2>
-                        <h3 className='h3product'>JBL</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images12[currentIndex]} alt="Boombox 3" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>เสียงกระหึ่มยาวต่อเนื่องทั้งวัน</h2>
-                                <h3 className='mt-2'>อัดแน่นด้วยเสียง JBL Original Pro Sound สร้างเสียงที่หนักแน่นพร้อมเสียงเบสที่นุ่มลึกทรงพลังของลำโพงแบบพกพา JBL Boombox 3 Wi-Fi และ Bluetooth สตรีมเพลงความละเอียดสูงได้ทุกสถานการณ์ </h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿24,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(12)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(12)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isEmberOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsEmberOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsEmberOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Emberton III</h2>
-                        <h3 className='h3product'>Marshall</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images13[currentIndex]} alt="Emberton III" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>MARSHALL SIGNATURE SOUND</h2>
-                                <h3 className='mt-2'>Emberton III features more bass than its predecessor. Dynamic Loudness adjusts the tonal balance as you change the volume. Discover a rich, full sound that'll never let you down.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿7,690</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(13)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(13)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isMiddleOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMiddleOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsMiddleOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Middleton II</h2>
-                        <h3 className='h3product'>Marshall</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images14[currentIndex]} alt="Middleton II" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>TRUE STEREOPHONIC</h2>
-                                <h3 className='mt-2'>360° True Stereophonic sound is a form of multidirectional audio that makes your music hit from all angles. Designed to sound strong from wherever you’re standing, with Middleton II, there’s nowhere to hide.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿12,900</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(14)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(14)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isKilburnOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsKilburnOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsKilburnOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Kilburn III</h2>
-                        <h3 className='h3product'>Marshall</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images15[currentIndex]} alt="Kilburn III" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))}
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>TRUE STEREOPHONIC</h2>
-                                <h3 className='mt-2'>360° sound finds you wherever you're standing thanks to a stereo arrangement with no blind spot. Take in well-rounded mids, crisp highs, and bass that digs deep with improved tuning and wide band drivers.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿14,990</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(15)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(15)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {isWillenOpen && (
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsWillenOpen(false);}} className="modalproductbg">
-                    <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
-                        <button onClick={() => setIsWillenOpen(false)} className="closebutton">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="h2product">Willen II</h2>
-                        <h3 className='h3product'>Marshall</h3>
-                        <ul className='flex flex-row space-x-32'>
-                            <li>
-                                <div className="divproduct">
-                                    <img src={images16[currentIndex]} alt="Willen II" className="productpic"/>
-                                    <ul className='ulpicbutton'>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))} 
-                                                className="picbutton">
-                                                    ‹
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))} 
-                                                className="picbutton">
-                                                    ›
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li className='mt-11'>
-                                <h2 className='text-black text-2xl font-semibold'>MARSHALL SIGNATURE SOUND</h2>
-                                <h3 className='mt-2'>Take any setting from quiet to loud. Willen II's slightly larger frame maximises bass. Its improved drivers also give every frequency its time to shine, so you’ll hear a balanced sound at any volume.</h3>
-                            </li>
-                        </ul>
-                        <h1 className='h1price'>฿4,290</h1>
-                        <ul className='ulabbutton'>
-                            <li>
-                                <button onClick={() => addToCart(16)} className='abbutton'>Add
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={() => addToBuy(16)} className='abbutton'>Buy
-                                </button>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
         </main>
-    )
+    );  
 }
 
 export default Speakers

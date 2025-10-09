@@ -131,17 +131,16 @@ function Admin() {
     }   
 
     const renderContent = () => {
-    switch (activeIndex) {
-      case 0: return <ProductTab />;
-      case 1: return <CategoryTab />;
-      case 2: return <RoleTab />;
-      case 3: return <FavouriteTab />;
-      case 4: return <AddressTab />
-      case 5: return <LogoutTab onLogout={() => navigate('/login')} />;
-      default: return null;
-    }
-  };
-
+      switch (activeIndex) {
+        case 0: return <ProductTab />;
+        case 1: return <CategoryTab />;
+        case 2: return <RoleTab />;
+        case 3: return <FavouriteTab />;
+        case 4: return <AddressTab />
+        case 5: return <LogoutTab onLogout={() => navigate('/login')} />;
+        default: return null;
+      }
+    };
 
   return (
     <main>
@@ -714,7 +713,7 @@ function Admin() {
   }
 
 
-
+  
   function RoleTab(){
 
     const[editrole, seteditrole] = useState({

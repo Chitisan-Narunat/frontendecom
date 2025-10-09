@@ -22,7 +22,7 @@ function FAQ() {
             <div className='container text-center'>
                 <h1 className='text-4xl text-black mt-24 font-playfair font-bold'>FAQs</h1>
                 <div className='border-2 rounded-full h-[40px] w-[170px] mx-auto flex items-center justify-center mt-4'>
-
+                    
                 </div>
                 <ul className='flex flex-row space-x-7 justify-center'>
                     <li>

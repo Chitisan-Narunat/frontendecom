@@ -8,6 +8,10 @@ import { getImageById } from "/Styles/product-images";
 import { speakerImages } from '../assets';
 import { headphoneImages } from '../assets';
 import { iconImages } from '../assets';
+import Endbar from '../components/Endbar';
+import ProductGrid from '../components/ProductCard';
+import { api } from '../../services/api';
+
 
 
 function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH100Click, onBeoH95Click, onBeoElevenClick, onBeoPlayExClick}) {
@@ -22,6 +26,10 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMenuRendered, setIsMenuRendered] = useState(false);
     const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+    const [isFavOpen, setIsFavOpen] = useState(false);
+    const [isFavRendered, setIsFavRendered] = useState(false);
+    const [isFavVisible, setIsFavVisible] = useState(false);
 
     const [isBeoLit20Open, setIsBeoLit20Open] = useState(false);
     const [isBeoA5Open, setIsBeoA5Open] = useState(false);
@@ -41,7 +49,6 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
     onBeoH95Click = (() => setIsBeoH95Open(true));
     onBeoElevenClick = (() => setIsBeoElevenOpen(true));   
     onBeoPlayExClick = (() => setIsBeoPlayExOpen(true));
-
 
 
     const images = [
@@ -94,32 +101,31 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);
+    const token = localStorage.getItem("token");
+
+    
+
     
 
     const navigate = useNavigate();
     const goToSpeakers = () =>{
       navigate('/pages/Speakers'); 
     }
-
-    const navigate2 = useNavigate();
     const goToAddress = () =>{
-        navigate2('/pages/Address');
+        navigate('/pages/Address');
         refreshCart();
     }
-
-    const navigate3 = useNavigate();
     const goToHeadphones = () =>{
-        navigate3('/pages/Headphones')
+        navigate('/pages/Headphones')
     }
-
-    const navigate10 = useNavigate();
     const goToSoundbars = () =>{
-        navigate10('/pages/Soundbars')
+        navigate('/pages/Soundbars')
     }
-
-    const navigatE = useNavigate();
     const goToAboutUs = () =>{
-        navigatE('/pages/AboutUs'); 
+        navigate('/pages/AboutUs'); 
+    }
+    const goToAll = () =>{
+        navigate('/pages/goToAll')
     }
 
     const [form , setForm] = useState({
@@ -175,13 +181,15 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                     window.location.reload();
                 }
             }
-            else{
+            else
+            {
                 alert("Login success but no token received");
             }
         }catch(error){
             if (error.response && typeof error.response.data === 'string') {
                 alert(error.response.data);
-            } else 
+            } 
+            else 
             {
                 alert('Login failed');
             }
@@ -295,7 +303,6 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-            
             });
             
             const d = API.data;
@@ -314,10 +321,8 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
             }
             
             closeallmodal();
-           
             navigate("/pages/Address");
             
-
         } catch(error){
             const status = error?.response?.status;
             const raw = error?.response?.data;
@@ -330,7 +335,6 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                 return;
             }
             setMessage(typeof raw === "string" ? raw : "failed");
-
         }
     };
 
@@ -354,6 +358,16 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
         }
     }, [isCartOpen]);
 
+      useEffect(() => {
+            if (isFavOpen) {
+                setIsFavRendered(true);
+                setTimeout(() => setIsFavVisible(true), 10);
+            } else {
+                setIsFavVisible(false);
+                setTimeout(() => setIsFavRendered(false), 300); 
+            }
+        }, [isFavOpen]);
+    
     const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
     const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
 
@@ -387,6 +401,7 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
         refreshCart();
     }
 
+
     async function decQty(rowId, qty) {
     if (qty <= 1) return;
     await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
@@ -399,46 +414,118 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
     }   
 
 
-
     useEffect(() => { if (isCartVisible) refreshCart(); }, [isCartVisible]);
 
+
+    const API = "http://localhost:5283/api";
+    const [products, setProducts] = useState([]);  
+
+
+    useEffect(() => {
+        let alive = true;
+        api.get('/Product/GetProduct')         
+            .then(res => { if (alive) setProducts(res.data || []); })
+            .catch(console.error);
+            return () => { alive = false; };
+        }, []);
+
+    const favs = products.filter(p => !!(p.isFavourite ?? p.IsFavourite));
+
+    // --- FAV: states ---
+    const [favList, setFavList] = useState([]);
+    const [loadingFavs, setLoadingFavs] = useState(false);
+
+
+    // เปิด/ปิด drawer แบบมีแอนิเมชัน (เหมือน cart)
+    useEffect(() => {
+        if (isFavOpen) {
+            setIsFavRendered(true);
+            setTimeout(() => setIsFavVisible(true), 10);
+        } else {
+            setIsFavVisible(false);
+            setTimeout(() => setIsFavRendered(false), 300);
+        }
+    }, [isFavOpen]);
+
+
+// โหลด fav จากเซิร์ฟเวอร์ (ดึง GetProduct แล้วกรอง isFavourite)
+    async function refreshFavs() {
+        try {
+            setLoadingFavs(true);
+            const { data } = await api.get("/Product/GetProduct", { params: { _t: Date.now() } });
+            const favOnly = (data || []).filter(p => !!(p.isFavourite ?? p.IsFavourite));
+            setFavList(favOnly);
+        } catch (e) {
+            console.error("load favs failed", e?.response?.status, e?.response?.data || e.message);
+            setFavList([]);
+        } finally {
+            setLoadingFavs(false);
+        }
+    }
+
+    // เปิดแผงเมื่อมองเห็น → ดึงรายการล่าสุดทุกครั้ง
+    useEffect(() => { if (isFavVisible) refreshFavs(); }, [isFavVisible]);
+
+    useEffect(() => {
+        if (!token) {
+            setFavList([]); 
+            return;
+        }
+        refreshFavs();     
+    }, [token]);
+
+
+    const [openProduct, setOpenProduct] = useState(null);
+    const cartCount = Array.isArray(cart?.items) ? cart.items.length : 0;
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) refreshCart();        // ✅ โหลดครั้งแรกเมื่อมี token
+    }, []);
+
+    useEffect(() => {
+        // ถ้า token เปลี่ยน (login/logout) ก็รีเฟรช
+        const token = localStorage.getItem("token");
+        if (token) refreshCart();
+        else setCart({ orderId: 0, items: [], actualPrice: 0 });
+    }, [isLoginOpen]); // หรือจะผูกกับสถานะอื่นที่เปลี่ยนตอน login สำเร็จ
 
 
     return (
         <main>
-            <Navbar onLoginClick={() => setIsLoginOpen(true)} onRegisterClick={() => setIsRegisterOpen(true)} onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)}/>
+            <Navbar onLoginClick={() => setIsLoginOpen(true)} onRegisterClick={() => setIsRegisterOpen(true)} onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)} onFavClick={() => setIsFavOpen(true)} favCount={favList.length} cartCount={cartCount}/>
                 <div className='bg-[#edeef0] text-white h-screen flex items-center justify-center'>
                     <div className='container mx-auto text-left'>
                         <h1 className='text-5xl text-[#212529] font-playfair font-bold'>Welcome to Our Website</h1>
                         <p className='text-lg text-[#6C757D] mt-4 font-playfair'>Discover premium Bang & Olufsen speakers<br/>combining sleek design and exceptional sound.<br/>Perfect for any space, our collection offers top-quality audio to elevate your music experience.</p>
                         <a href="/pages/Speakers" className='bg-[#feddd2] text-white px-6 py-2 rounded-full mt-8 inline-block hover:bg-gray-500 shadow-sm font-playfair'>Shop Now</a>
                     </div>
-                    <img src={speakerImages.Bo8} alt="Bg" className='h-auto w-[420px] -ml-96'/>
+                    <img src={speakerImages.Bo8} alt="Bg" className='h-auto w-[420px] -ml-96' onError={(e) => console.error("Image load error:", e)}/>     
                 </div>
                 <div className="bg-white h-screen">
                     <div className="container mx-auto text-center">
                         <h2 className="text-3xl font-bold text-gray-800 mt-10 font-playfair">Our Product</h2>
                         <div className='myContainer'>
                             <div onClick={onBeoLit20Click} className='containerBox'>
-                                <img src={speakerImages.Beolit20} alt="Beolit 20" className='imageInBox'/>
+                                <img src={`${API}/products/1/images-blob/1`} alt="Be 20" className='imageInBox'/>
                                 <h3 className='headText'>Beolit 20</h3>
                                 <p className="desText">Bang&Olufsen</p>
                                 <p className="priceText">฿21990</p>
                             </div>
                             <div onClick={onBeoA5Click} className='containerBox'>
-                                <img src={speakerImages.Bo6} alt="Be 20" className='imageInBox'/>
+                                <img src={`${API}/products/2/images-blob/2`} alt="Be 20" className='imageInBox'/>
                                 <h3 className='headText'>Beosound A5</h3>
                                 <p className="desText">Bang&Olufsen</p>
                                 <p className="priceText">฿64700</p>
                             </div>
                             <div onClick={onBeoExClick} className='containerBox'>
-                                <img src={speakerImages.Bo7} alt="Be 20" className='imageInBox'/>
+                                <img src={`${API}/products/3/images-blob/3`} alt="Be 20" className='imageInBox'/>
                                 <h3 className='headText'>Beosound Explore</h3>
                                 <p className="desText">Bang&Olufsen</p>
                                 <p className="priceText">฿7900</p>
                             </div>
                             <div onClick={onBeoA1Click} className='containerBox'>
-                                <img src={speakerImages.Bo5} alt="Be 20" className='imageInBox'/>
+                                <img src={`${API}/products/4/images-blob/4`} alt="Be 20" className='imageInBox'/>
                                 <h3 className='headText'>Beosound A1</h3>
                                 <p className="desText">Bang&Olufsen</p>
                                 <p className="priceText">฿14800</p>
@@ -446,7 +533,7 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                         </div>
                         <div className='myContainer'>
                              <div onClick={onBeoH100Click} className='containerBox'>
-                                <img src={headphoneImages.Hp6} alt="Be 20" className='imageInBox'/>
+                                <img src={`${API}/products/21/images-blob/16`} alt="Be 20" className='imageInBox'/>
                                 <h3 className='headText'>Beoplay H100</h3>
                                 <p className="desText">Bang&Olufsen</p>
                                 <p className="priceText">฿69000</p>
@@ -472,7 +559,7 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                         </div>
                     </div>
                 </div>
-                <div className='bg-white h-screen px-10 py-7'>
+                <div className='bg-gray-100 h-screen px-10 py-7'>
                     <h1 className='text-3xl font-bold'>Brand Story</h1>
                     <ul className='flex flex-row space-x-24 mt-[120px] ml-10'>
                         <li>    
@@ -528,45 +615,42 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                                 loading="lazy"
                             />
                         </li>
-                          <li>
+                        <li>
                             <img src={headphoneImages.homeimage} alt=""  className=' h-[700px] w-auto -mt-[170px] rounded-lg' />
                         </li>
                     </ul>
                 </div>
-                <div className='bg-gray-400 h-52'>
-                    <ul className='flex space-x-12 flex-row backdrop:font-semibold text-xs text-white mt-4 ml-4 absolute'>
-                        <li className='flex flex-col space-y-2'>
-                            <h1 className='text-2xl'>Dontknow</h1>
-                            <h2>ร้าน Dontknow เป็นร้านขายเครืื่องเสียง โดยนำเข้า Marshall Devialet Bang&Olufsen และแบรนด์ชั้นนำต่างๆมาวางขายในประเทศไทย
-                                <br/>มีสาขาหลากหลายและมีเว็ปไซท์ที่สามารถนัดทดองมาฟังจริงๆได้ไำด่ไรำด่ไรำด่ไำรนด่ไรำนด่ไำน่ดนนนนไำ
-                                <br/>ฟหกห่กืฟา่หกืฟ่าหืกา่ฟหืก่าืหก่าืห่าำได่ไำรด่นไำ่ดนรไำ่ดไำดไำด้ไำรีดดดดดดนนนไนำ
-                                <br/>
-                            </h2>
-                        </li>
-                        <li className='flex flex-col space-y-2'>
-                            <h1 className='text-xl'>Quick Link</h1>
-                            <a href="/pages/AboutUs">About Us</a>
-                            <a href="/pages/contactus">Contact Us</a>
-                            <a href="/pages/FAQ">FAQs</a>
-                            <a href="">Privacy policy</a>
-                        </li>
-                        <li className='flex flex-col space-y-2'>
-                            <h1 className='text-xl'>Follow Us</h1>
-                            <li className='flex flex-row space-x-2 justify-center'>
-                                <img src={iconImages.tiktok} alt="tiktokicon" className='w-7 h-7 -mt-1' onClick={() => window.open('https://www.tiktok.com/@wishusbetter', '_blank', 'noopener,noreferrer')}/>
-                                <img src={iconImages.ig} alt="" className='w-7 h-7 -mt-1' onClick={() => window.open('https://www.instagram.com/wishusbetter/', '_blank', 'noopener,noreferrer')}/>
-                                <img src={iconImages.x} alt="" className='w-7 h-7 -mt-1' onClick={() => window.open('https://x.com/renebaee06', '_blank', 'noopener,noreferrer')}/>
-                            </li>
-                        </li>
-                        <li className='flex flex-col space-y-2'>
-                            <h1 className='text-xl'>Language</h1>
-                            <select name="Roles" className="w-fit bg-gray-400 rounded-lg text-center justify-center">
-                                <option>Thai</option>
-                                <option>English</option>
-                            </select>
-                        </li>
-                    </ul>
+                <div className="bg-white h-fit">
+                    <div className="container mx-auto text-center">
+                        <h2 className="text-3xl font-bold text-gray-800 mt-10 font-playfair">Your Favourite</h2>
+                        {favs.length > 0 ? (
+                            <div className="mt-6">
+                                <ProductGrid
+                                    title={null}
+                                    items={favs}
+                                    token={token}
+                                    onFavChange={(pid, next, meta) => {                             
+                                        if (meta?.requireLogin) return;
+                                        setProducts(prev =>
+                                            prev.map(p => p.productId === pid ? { ...p, isFavourite: next } : p)
+                                        );
+                                    }}
+                                    onProductClick={(pid) => {
+                                        const product = favs.find(p => p.productId === pid);
+                                        if (product) setOpenProduct(product);
+                                    }}
+                                />
+                            </div>
+                            ) : (
+                                <p className="text-gray-500 mt-8">ยังไม่มีสินค้าในรายการโปรด</p>
+                            )
+                        } 
+                    </div>
                 </div>
+                <div className='bg-white h-[72px]'>
+                </div>
+                <iframe width="640" height="360" src="https://www.youtube.com/embed/lmKeU0eZo_o?si=hvWuCRS8JyisSNlf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <Endbar></Endbar>
                 {isLoginOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative">
@@ -676,7 +760,7 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                                     <button>Homes</button>
                                 </li>
                                 <li>
-                                    <button>All Product</button>
+                                    <button onClick={goToAll}>All Product</button>
                                 </li>
                                 <li>
                                     <button onClick={goToSpeakers}>Speakers</button>
@@ -690,6 +774,68 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                             </ul>
                         </div>
                     </div>
+                )}
+                {isFavRendered && (
+                    <div onMouseDown={(e) => { if (e.target === e.currentTarget) setIsFavOpen(false); }} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isFavVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                        <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isFavVisible ? 'translate-x-0' : 'translate-x-full'}`}>
+                            <button onClick={() => setIsFavOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
+                                <IoClose size={24}/>
+                            </button>
+                            <h2 className='text-2xl font-bold mb-4 text-center'>Favourite</h2>
+                            <hr className="border-black border-t-2 w-full"/>
+                            <ul className='mt-[14px] space-y-5'>
+                                {loadingFavs ? (
+                                    <li className="text-center text-gray-500 py-10">
+                                        กำลังโหลด...
+                                    </li>
+                                    ) : favList.length === 0 ? (
+                                        <li className="text-center text-gray-500 py-10">
+                                            ยังไม่มีสินค้าที่ชอบ
+                                        </li>
+                                    ) : (
+                                        favList.map(item => {
+                                            const pid = item.productId ?? item.ProductId;
+                                            const name = item.productName ?? item.ProductName ?? "";
+                                            const desc = item.productDescription ?? item.ProductDescription ?? "";
+                                            const img  = (item.primaryImageUrl ?? item.PrimaryImageUrl) || "/placeholder.png";
+                                            return (
+                                                <li key={pid}>
+                                                    <div className='w-full h-28 rounded-lg bg-gray-100 flex space-x-3'>
+                                                        <div className='w-24 h-20 flex justify-center items-start'>
+                                                            <img className='w-24 h-20 ml-4 object-contain' src={img} alt={name} />
+                                                        </div>
+                                                        <ul className='flex flex-col flex-1 pr-10'>
+                                                            <li className='flex flex-row'>
+                                                                <h3 className='mt-3 font-bold truncate'>{name}</h3>
+                                        <button
+                                        className='absolute right-9 mt-2'
+                                        onClick={async () => {
+                                          try {
+                                            await api.delete('/Favourite/RemoveFavourite', { params: { ProductId: pid } });
+                                          } finally {
+                                            // เอาออกจากแผง
+                                            setFavList(prev => prev.filter(x => (x.productId ?? x.ProductId) !== pid));
+                                            // sync กับ products หลัก
+                                            setProducts(prev => prev.map(p =>
+                                              (p.productId ?? p.ProductId) === pid ? { ...p, isFavourite: false } : p
+                                            ));
+                                          }
+                                        }}
+                                      >
+                                        <IoClose size={17}/>
+                                      </button>
+                                    </li>
+                                    <li><h3 className='text-xs font-sans line-clamp-2'>{desc}</h3></li>
+                                    <li><div className='bg-gray-200 rounded-sm w-full h-4'/></li>
+                                  </ul>
+                                </div>
+                              </li>
+                            );
+                          })
+                        )}
+                      </ul>
+                    </div>
+                  </div>
                 )}
                 {isBeoLit20Open && (
                     <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsBeoLit20Open(false);}} className="modalproductbg">
@@ -1067,7 +1213,59 @@ function Home({onBeoLit20Click, onBeoA5Click, onBeoExClick, onBeoA1Click, onBeoH
                             </ul>
                         </div>
                     </div>
-                )} 
+                )}
+                {openProduct && (
+                    <div onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenProduct(null);}} className="modalproductbg" >
+                        <div onMouseDown={(e) => e.stopPropagation()} className="modalProduct">
+                            <button onClick={() => setOpenProduct(null)} className="closebutton">
+                                <IoClose size={24} />
+                            </button>
+                            <h2 className="h2product">{openProduct.productName}</h2>
+                            <h3 className="h3product">{openProduct.productDescription}</h3>
+                            <ul className="flex flex-row space-x-32">
+                                <li>
+                                    <div className="divproduct"> {
+                                        images.length > 0 && ( 
+                                            <img src={images[currentIndex]} alt={openProduct.productName} className="productpic"/>
+                                        )}
+                                        {images.length > 1 && (
+                                            <ul className="ulsbpicbutton">
+                                                <li>
+                                                    <button onClick={() => setCurrentIndex((prev) => prev > 0 ? prev - 1 : images.length - 1)} className="picbutton">
+                                                        ‹
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button onClick={() => setCurrentIndex((prev) => prev < images.length - 1 ? prev + 1 : 0)} className="picbutton">
+                                                        ›
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        )}
+                                    </div>
+                                </li>
+                                <li className="mt-11">
+                                    <h2 className="text-black text-2xl font-semibold">{openProduct.productHeadText}</h2>
+                                    <h3 className="mt-2">{openProduct.productBrand}</h3>
+                                </li>
+                            </ul>
+                            <h1 className="h1price">฿{Number(openProduct.productPrice).toLocaleString()}</h1>
+                            <ul className="ulabbutton">
+                                <li>
+                                    <button onClick={() => addToCart(openProduct.productId)} className="abbutton">
+                                        Add
+                                    </button>
+                                </li>
+                                <li>
+                                    <button onClick={() => addToBuy(openProduct.productId)} className="abbutton">
+                                        Buy
+                                    </button>
+                                </li>
+                            </ul>
+                            <p className="mt-auto font-light text-white text-center">{message}</p>
+                        </div>
+                    </div>
+                )}        
         </main>
     )
 }
