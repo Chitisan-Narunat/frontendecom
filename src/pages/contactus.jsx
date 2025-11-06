@@ -3,8 +3,8 @@ import Navbar from '../components/Navbar'
 import { iconImages } from '../assets'
 import { useNavigate } from 'react-router-dom';
 import { IoClose } from 'react-icons/io5';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { api } from '../../services/api';
 
 
 
@@ -54,7 +54,7 @@ function Contactus() {
     const handleLogin = async(e) =>{
         e.preventDefault();
         try{
-            const API = await axios.get('http://localhost:5283/api/Authen/Login',{
+            const API = await api.get('/Authen/Login',{
                 params: {
                     Email: form.email,
                     PassWord: form.passWord
@@ -108,7 +108,7 @@ function Contactus() {
     const handleRegister = async(e) =>{
         e.preventDefault();
         try{
-            const API = await axios.post('http://localhost:5283/api/Authen/Register',{
+            const API = await api.post('/Authen/Register',{
                 Email: form2.email,
                 UserName: form2.userName,
                 PassWord: form2.passWord
@@ -129,6 +129,34 @@ function Contactus() {
             ...form2,
             [e.target.name]:e.target.value,
         });
+    };
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [text, setText] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSend = async () => {
+        if (!name || !email || !text) {
+            alert("กรุณากรอกข้อมูลให้ครบ");
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await api.post("/Contact/Send", {
+                name,
+                email,
+                message: text
+            });
+            alert(res.data);
+            setName("");
+            setEmail("");
+            setText("");
+        } catch (err) {
+            alert("ส่งไม่สำเร็จ: " + (err?.response?.data || err.message));
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -163,30 +191,26 @@ function Contactus() {
                             </div>
                         </li>
                         <li>
-                            <div className='rounded-lg border-2 h-[470px] w-[400px] mt-6 flex items-start justify-start text-start flex-col space-y-1 hover hover:bg-gray-200'>
-                                <h1 className='font-sans font-bold text-2xl mt-7 ml-7'>
-                                    ส่งข้อความ
-                                </h1>
-                                <h2 className='font-sans font-light text-lg ml-7'>
-                                    send a message
-                                </h2>
+                            <div className='rounded-lg border-2 h-[470px] w-[400px] mt-6 flex items-start justify-start text-start flex-col space-y-1 hover:bg-gray-200 transition'>
+                                <h1 className='font-sans font-bold text-2xl mt-7 ml-7'>ส่งข้อความ</h1>
+                                <h2 className='font-sans font-light text-lg ml-7'>send a message</h2>
                                 <ul className='flex flex-col space-y-3 relative'>
                                     <li>
-                                        <input type="text" placeholder='Name' className='px-3 py-1 border-2 rounded-lg w-[340px] h-10 ml-7'/>
+                                        <input type="text" placeholder='Name' className='px-3 py-1 border-2 rounded-lg w-[340px] h-10 ml-7' value={name} onChange={(e) => setName(e.target.value)}/>
                                     </li>
                                     <li>
-                                        <input type="email" placeholder='Email' className='px-3 py-1 border-2 rounded-lg w-[340px] h-10 ml-7'/>
+                                        <input type="email" placeholder='Email' className='px-3 py-1 border-2 rounded-lg w-[340px] h-10 ml-7' value={email} onChange={(e) => setEmail(e.target.value)}/>
                                     </li>
                                     <li>
-                                        <input type="text" placeholder='Text' className='px-3 py-1 border-2 rounded-lg w-[340px] h-36 ml-7'/>
+                                        <textarea placeholder='Text' className='px-3 py-1 border-2 rounded-lg w-[340px] h-36 ml-7 resize-none' value={text} onChange={(e) => setText(e.target.value)}/>
                                     </li>
                                     <li>
-                                        <button className='border-2 rounded-lg ml-7 font-sans font-bold text-xl w-[340px] h-16 bg-black text-white border-black mt-2'>
-                                            Send Message
-                                        </button>
+                                        <button onClick={handleSend} disabled={loading} className='border-2 rounded-lg ml-7 font-sans font-bold text-xl w-[340px] h-16 bg-black text-white border-black mt-2 disabled:opacity-60 hover:bg-gray-800 transition'>
+                                            {loading ? "กำลังส่ง..." : "Send Message"}
+                                         </button>
                                     </li>
                                 </ul>
-                            </div>
+                            </div>  
                         </li>
                     </ul>
                     <ul className='flex flex-row space-x-3 justify-center ml-[178px] -mt-[320px]'>

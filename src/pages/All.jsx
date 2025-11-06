@@ -238,24 +238,6 @@ function Speakers() {
 
 //////////////////////////////Cart////////////////////////////////
 
-    const closeAllModals = () => {
-        setIsBeoLit20Open(false);
-        setIsBeoA5Open(false);
-        setIsBeoExOpen(false);
-        setIsBeoA1Open(false);
-        setIsOnyx8Open(false);
-        setIsGoPlayOpen(false);
-        setIsAura3Open(false);
-        setIsOnyx9Open(false);
-        setIsFlip7ExOpen(false);
-        setIsPulse5Open(false);
-        setIsXtremeOpen(false);
-        setIsBoomOpen(false);
-        setIsEmberOpen(false);
-        setIsMiddleOpen(false);
-        setIsKilburnOpen(false);
-        setIsWillenOpen(false);
-    };
 //////////////////////////////Add Modal////////////////////////////////
 
     const addToCart = async (ProductId) => {
@@ -264,7 +246,7 @@ function Speakers() {
             if (!token) {
                 alert("กรุณาเข้าสู่ระบบก่อน");
 
-                closeAllModals();
+                setOpenProduct(false);
                 setIsLoginOpen(true)         
                 return;
             }
@@ -295,7 +277,7 @@ function Speakers() {
                 localStorage.setItem("currentOrderId", String(oid));
             }
     
-            closeAllModals();
+            setOpenProduct(false);
             setIsCartOpen(true);
             alert("เพิ่มลงตะกร้าแล้ว");
 
@@ -349,7 +331,7 @@ function Speakers() {
                 localStorage.setItem("currentOrderId", String(oid));
             }
 
-            closeAllModals();
+            setOpenProduct(false);
             navigate("/pages/Address");
             
         } catch(error){
@@ -441,7 +423,7 @@ function Speakers() {
                 .catch((err) => console.error(err));
             }, []);
 
-    useEffect(() => {
+        useEffect(() => {
             if (!openProduct) return;
             let alive = true;
             setLoadingImgs(true);
@@ -459,12 +441,9 @@ function Speakers() {
             .finally(() => setLoadingImgs(false));
             return () => { alive = false; };
         }, [openProduct]);
+
+
         
-
-
-
-
-
     return (
         <main>
             <Navbar onCartClick={() => setIsCartOpen(true)} onMenuClick={() => setIsMenuOpen(true)} onLoginClick={() => setIsLoginOpen(true)} onRegisterClick={() => setIsRegisterOpen(true)} onFavClick={() => setIsFavOpen(true)} favCount={favList.length} cartCount={cartCount}/>
@@ -480,22 +459,21 @@ function Speakers() {
                                 : x
                             )
                         );
-                                    // 2) อัปเดตลิสต์ในแผง Favourite ทันที
-                                    setFavList(prev => {
-                                        const exists = prev.some(x => (x.productId ?? x.ProductId) === pid);
-                                        if (next) {
-                                            if (!exists) {
-                                                // หา item ตัวเต็มจาก cat1 ก่อน ไม่มีก็หาจาก products
-                                                const full = (cat1 || []).find(x => (x.productId ?? x.ProductId) === pid) || (products || []).find(x => (x.productId ?? x.ProductId) === pid);
-                                                return full ? [full, ...prev] : prev;
-                                            }
-                                            return prev;
-                                        } else {
-                                            return prev.filter(x => (x.productId ?? x.ProductId) !== pid);
-                                        }
-                                    });
-                                }}/>
-                
+                        // 2) อัปเดตลิสต์ในแผง Favourite ทันที
+                        setFavList(prev => {
+                            const exists = prev.some(x => (x.productId ?? x.ProductId) === pid);
+                            if (next) {
+                                if (!exists) {
+                                    // หา item ตัวเต็มจาก cat1 ก่อน ไม่มีก็หาจาก products
+                                    const full = (cat1 || []).find(x => (x.productId ?? x.ProductId) === pid) || (products || []).find(x => (x.productId ?? x.ProductId) === pid);
+                                    return full ? [full, ...prev] : prev;
+                                }
+                                return prev;
+                            } else {
+                                return prev.filter(x => (x.productId ?? x.ProductId) !== pid);
+                            }
+                        });
+                    }}/>
             </div>
             <div className='bg-[#edeef0] h-20'>
             </div>
@@ -673,10 +651,10 @@ function Speakers() {
                                                             </button>
                                                         </li>
                                                         <li>
-                                                                <h3 className='text-xs font-sans line-clamp-2'>{desc}</h3>
+                                                            <h3 className='text-xs font-sans line-clamp-2'>{desc}</h3>
                                                         </li>
                                                         <li>
-                                                                        <div className='bg-gray-200 rounded-sm w-full h-4'/>
+                                                            <div className='bg-gray-200 rounded-sm w-full h-4'/>
                                                         </li>
                                                     </ul>
                                                 </div>

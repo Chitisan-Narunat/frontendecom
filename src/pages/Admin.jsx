@@ -1,294 +1,312 @@
-import Navbar from '/src/components/Navbar';
-import React, { useState, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { IoClose } from 'react-icons/io5';
-import axios from 'axios';
-import icon1 from "/src/assets/9022927_user_circle_duotone_icon.svg"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "/src/components/Navbar";
+import { IoClose } from "react-icons/io5";
+import { jwtDecode } from "jwt-decode";
+import { api } from "../../services/api";
 import { getImageById } from "/Styles/product-images";
-import { jwtDecode } from 'jwt-decode';
 
+// ---------- Small UI helpers ----------
+function Section({ title, children, right }) {
+  return (
+    <section className="bg-white rounded-2xl shadow-sm border border-gray-200">
+      <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h2 className="text-lg font-bold">{title}</h2>
+        {right}
+      </div>
+      <div className="p-5">{children}</div>
+    </section>
+  );
+}
+function Field({ label, children, hint }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-gray-700">{label}</label>
+      {children}
+      {hint && <p className="text-xs text-gray-500">{hint}</p>}
+    </div>
+  );
+}
+function Input(props) {
+  return (
+    <input
+      {...props}
+      className={
+        "w-full rounded-lg border border-gray-300 px-3 h-10 bg-white focus:outline-none focus:ring-2 focus:ring-black/10 " +
+        (props.className || "")
+      }
+    />
+  );
+}
+function NumberInput(props) {
+  return <Input type="number" inputMode="numeric" {...props} />;
+}
+function PrimaryButton({ children, className = "", ...rest }) {
+  return (
+    <button
+      {...rest}
+      className={
+        "inline-flex items-center justify-center rounded-lg bg-black text-white h-10 px-4 hover:bg-gray-800 transition " +
+        className
+      }
+    >
+      {children}
+    </button>
+  );
+}
+function GhostButton({ children, className = "", ...rest }) {
+  return (
+    <button
+      {...rest}
+      className={
+        "inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-800 h-10 px-4 hover:bg-gray-100 transition " +
+        className
+      }
+    >
+      {children}
+    </button>
+  );
+}
 
-function Admin() {
+export default function Admin() {
+  const navigate = useNavigate();
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMenuRendered, setIsMenuRendered] = useState(false);
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCartRendered, setIsCartRendered] = useState(false);
-  const [isCartVisible, setIsCartVisible] = useState(false);
-
+  // ---------- topbar state ----------
   const [userName, setUserName] = useState("");
-
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token); 
-        setUserName(decoded.UserName);
-      } catch (err) {
-        console.error("Invalid token:", err);
-      }
+    if (!token) return;
+    try {
+      const decoded = jwtDecode(token);
+      setUserName(decoded.UserName);
+    } catch {
+      return;
     }
   }, []);
 
-  
-  const navigate = useNavigate();
-    const goToHome = () =>{
-      navigate('/pages/Home'); 
-    }
+  // ---------- sidebar nav ----------
+  const TABS = [
+    { key: 0, label: "Products" },
+    { key: 1, label: "Categories" },
+    { key: 2, label: "Roles" },
+    { key: 3, label: "Dashboard" },
+    { key: 4, label: "Addresses" },
+    { key: 5, label: "Log out" },
+  ];
+  const [active, setActive] = useState(0);
 
-    const Navigate = useNavigate();
-    const goToSpeakers = () =>{
-      Navigate('/pages/Speakers'); 
-    }
+  // ---------- drawers ----------
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
-    const navigate4 = useNavigate();
-    const goToHeadphones = () =>{
-        navigate4('/pages/Headphones')
-    }
+  // ---------- cart ----------
+  const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+  const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
 
-    const navigate12 = useNavigate();
-    const goToSoundbars = () =>{
-        navigate12('/pages/Soundbars')
-    }
+  async function refreshCart() {
+    const { data } = await api.get("/OrderItem/Current", { headers: auth() });
+    setCart({
+      orderId: data?.orderId ?? 0,
+      items: data?.items ?? [],
+      actualPrice: data?.actualPrice ?? 0,
+    });
+  }
+  useEffect(() => {
+    if (cartOpen) refreshCart();
+  }, [cartOpen]);
 
-    const navigate14 = useNavigate();
-        const goToAddress = () =>{
-            navigate14('/pages/Address')
-        }
-    
-    const navigate15 = useNavigate();
-    const gotoAdmin = () =>{
-        navigate15('/pages/Admin')
-    }
-
-    useEffect(() => {
-      if (isMenuOpen) {
-        setIsMenuRendered(true);
-        setTimeout(() => setIsMenuVisible(true), 10);
-      } else {
-        setIsMenuVisible(false);
-        setTimeout(() => setIsMenuRendered(false), 300); 
-      }
-    }, [isMenuOpen]);
-
-    useEffect(() => {
-            if (isCartOpen) {
-                setIsCartRendered(true);
-                setTimeout(() => setIsCartVisible(true), 10);
-            } else {
-                setIsCartVisible(false);
-                setTimeout(() => setIsCartRendered(false), 300);
-            }
-        }, [isCartOpen]);
-
-    useEffect(() => { if (isCartVisible) refreshCart(); }, [isCartVisible]);
-
-    const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
-    const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
-
-    async function refreshCart() {
-        const { data } = await axios.get(`http://localhost:5283/api/OrderItem/Current`, { headers: auth() });
-        setCart({
-            orderId: data?.orderId ?? 0,
-            items: data?.items ?? [],
-            actualPrice: data?.actualPrice ?? 0
-        });
-    }
-
-    async function removeItem(rowId) {
-    await axios.delete(`http://localhost:5283/api/OrderItem/DropItem`,  
-        { 
-            params: { OrderItemsId: rowId }, headers: auth() 
-        });
-        refreshCart();
-    }   
-
-
-    async function incQty(rowId, qty) {
-        await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
-            { quantity: qty + 1 },
-            { 
-                params: { OrderItemsId: rowId },
-                headers: { "Content-Type": "application/json", ...auth() } 
-            });
-            refreshCart();
-    }
-
-    async function decQty(rowId, qty) {
-
+  async function removeItem(rowId) {
+    await api.delete("/OrderItem/DropItem", { params: { OrderItemsId: rowId }, headers: auth() });
+    refreshCart();
+  }
+  async function incQty(rowId, qty) {
+    await api.put(
+      "/OrderItem/EditQuantity",
+      { quantity: qty + 1 },
+      { params: { OrderItemsId: rowId }, headers: { "Content-Type": "application/json", ...auth() } }
+    );
+    refreshCart();
+  }
+  async function decQty(rowId, qty) {
     if (qty <= 1) return;
-    await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
-        { quantity: qty - 1 },
-        { 
-            params: { OrderItemsId: rowId },
-            headers: { "Content-Type": "application/json",...auth()}
-        });    
-        refreshCart ();
-    }   
+    await api.put(
+      "/OrderItem/EditQuantity",
+      { quantity: qty - 1 },
+      { params: { OrderItemsId: rowId }, headers: { "Content-Type": "application/json", ...auth() } }
+    );
+    refreshCart();
+  }
 
-    const renderContent = () => {
-      switch (activeIndex) {
-        case 0: return <ProductTab />;
-        case 1: return <CategoryTab />;
-        case 2: return <RoleTab />;
-        case 3: return <FavouriteTab />;
-        case 4: return <AddressTab />
-        case 5: return <LogoutTab onLogout={() => navigate('/login')} />;
-        default: return null;
-      }
-    };
+  // ---------- tab bodies ----------
+  function Body() {
+    switch (active) {
+      case 0:
+        return <ProductsTab />;
+      case 1:
+        return <CategoriesTab />;
+      case 2:
+        return <RolesTab />;
+      case 3:
+        return (
+          navigate("/pages/AdminDashboard")
+        );
+      case 4:
+        return <AddressesTab />;
+      case 5:
+        localStorage.removeItem("token");
+        navigate("/login");
+        return null;
+      default:
+        return null;
+    }
+  }
 
+  // ---------- layout ----------
   return (
-    <main>
-      <Navbar onMenuClick={() => setIsMenuOpen(true)} onCartClick={() => setIsCartOpen(true)} />
-      <div className='bg-white h-screen'>
-        <div className='flex'>
-          <div className='bg-white w-[300px] h-[860px] mt-[66px] border-black'>
-            <ul className='mt-24'>
-              <ul className='flex flex-row space-x-6'>
-                <li>
-                  <img className='h-20 w-20 absolute top-[75px] left-3' src={icon1} alt="" />
-                </li>
-                <li>
-                  <h1 className='absolute top-[105px] font-bold left-24 text-xl text-black font-playfair' >{userName}</h1>
-                </li>
-              </ul>
-              <li>
-                <button onClick={() => setActiveIndex(0)} className={`w-full h-20 rounded-xl text-black font-serif text-lg hover:bg-gray-300 ${activeIndex === 0 ? 'bg-gray-300' : 'bg-white'}`}>
-                  Product
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setActiveIndex(1)} className={`w-full h-20 rounded-xl text-black font-serif text-lg hover:bg-gray-300 ${activeIndex === 1 ? 'bg-gray-300' : 'bg-white'}`}>
-                  Category
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setActiveIndex(2)} className={`w-full h-20 rounded-xl text-black font-serif text-lg hover:bg-gray-300 ${activeIndex === 2 ? 'bg-gray-300' : 'bg-white'}`}>
-                  Roles
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setActiveIndex(3)} className={`w-full h-20 rounded-xl text-black font-serif text-lg hover:bg-gray-300 ${activeIndex === 3 ? 'bg-gray-300' : 'bg-white'}`}>
-                  My Favourite
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setActiveIndex(4)} className={`w-full h-20 rounded-xl text-black font-serif text-lg hover:bg-gray-300 ${activeIndex === 4 ? 'bg-gray-300' : 'bg-white'}`}>
-                  Address
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setActiveIndex(5)} className={`w-full h-20 rounded-xl text-black font-serif text-lg hover:bg-gray-300 ${activeIndex === 5 ? 'bg-gray-300' : 'bg-white'}`}>
-                  Log Out
-                </button>
-              </li>
-            </ul>
+    <main className="min-h-screen bg-[#f5f6f8]">
+      <Navbar
+        onMenuClick={() => setMenuOpen(true)}
+        onCartClick={() => setCartOpen(true)}
+      />
+
+      <div className="mx-auto max-w-7xl px-4 pt-24 pb-10">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">Admin Console</h1>
+            <p className="text-sm text-gray-500">ยินดีต้อนรับ, <span className="font-medium">{userName || "User"}</span></p>
           </div>
-          <div className='flex-1 h-[860px] mt-[66px] p-8 overflow-y-auto bg-gray-200'>
-            {renderContent()}
+          <div className="flex gap-3">
+            <GhostButton onClick={() => navigate("/pages/Home")}>ไปหน้าร้าน</GhostButton>
+            <PrimaryButton onClick={() => setCartOpen(true)}>เปิดตะกร้า</PrimaryButton>
           </div>
         </div>
+
+        <div className="grid grid-cols-12 gap-6">
+          {/* Sidebar */}
+          <aside className="col-span-12 md:col-span-3">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2">
+              {TABS.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setActive(t.key)}
+                  className={`w-full text-left px-4 h-11 rounded-lg transition ${
+                    active === t.key
+                      ? "bg-black text-white"
+                      : "hover:bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          {/* Content */}
+          <section className="col-span-12 md:col-span-9">
+            <Body />
+          </section>
+        </div>
       </div>
-      {isMenuRendered &&(
-        <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-            <button onClick={() => setIsMenuOpen(false)} className='absolute top-6 left-9 text-gray-600 hover:text-black'>
-              <IoClose size={24}/>
-            </button>
-            <ul className='flex space-y-3 flex-col mt-16 ml-2 font-semibold text-xl'>
-              <li>
-                <button onClick={goToHome}>Homes
-                </button>
-              </li>       
-              <li>
-                <button onClick={goToSpeakers}>Speakers
-                </button>
-              </li>
-              <li>
-                <button onClick={goToHeadphones}>Headphones
-                </button>
-              </li>
-              <li>
-                <button onClick={goToSoundbars}>Soundbars
-                </button>
-              </li>
-              <li>
-                <button onClick={gotoAdmin}>Admin
-                </button>
-              </li>
-            </ul>  
+
+      {/* -------- Menu Drawer (mobile) -------- */}
+      {menuOpen && (
+        <div
+          onMouseDown={(e) => e.target === e.currentTarget && setMenuOpen(false)}
+          className="fixed inset-0 z-[60] bg-black/40"
+        >
+          <div
+            onMouseDown={(e) => e.stopPropagation()}
+            className="absolute left-0 top-0 h-full w-72 bg-white shadow-xl p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold">เมนู</h3>
+              <button onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-black">
+                <IoClose size={22} />
+              </button>
+            </div>
+            <div className="flex flex-col gap-2">
+              <GhostButton onClick={() => navigate("/pages/Home")}>Home</GhostButton>
+              <GhostButton onClick={() => navigate("/pages/Speakers")}>Speakers</GhostButton>
+              <GhostButton onClick={() => navigate("/pages/Headphones")}>Headphones</GhostButton>
+              <GhostButton onClick={() => navigate("/pages/Soundbars")}>Soundbars</GhostButton>
+              <GhostButton onClick={() => setMenuOpen(false)}>ปิด</GhostButton>
+            </div>
           </div>
         </div>
       )}
-      {isCartRendered && (
-        <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsCartOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-end items-stretch z-50 transition-opacity duration-300 ease-in-out ${isCartVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white rounded-lg shadow-lg p-6 w-96 relative transform transition-transform duration-300 ease-in-out ${isCartVisible ? 'translate-x-0' : 'translate-x-full'}`}>
-            <button onClick={() => setIsCartOpen(false)} className='absolute top-3 right-3 text-gray-600 hover:text-black'>
-              <IoClose size={24}/>
-            </button>
-            <h2 className='text-2xl font-bold mb-4 text-center'>Cart</h2>
-            <hr className="border-black border-t-2 w-full"/>
-            <ul className='mt-[14px] space-y-5'>
+
+      {/* -------- Cart Drawer -------- */}
+      {cartOpen && (
+        <div
+          onMouseDown={(e) => e.target === e.currentTarget && setCartOpen(false)}
+          className="fixed inset-0 z-[60] bg-black/40"
+        >
+          <div
+            onMouseDown={(e) => e.stopPropagation()}
+            className="absolute right-0 top-0 h-full w-[380px] bg-white shadow-2xl flex flex-col"
+          >
+            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="font-bold">ตะกร้าสินค้า</h3>
+              <button onClick={() => setCartOpen(false)} className="text-gray-600 hover:text-black">
+                <IoClose size={22} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {cart.items.length === 0 ? (
-                <li className="text-center text-gray-500 py-10">
-                  ตะกร้าว่าง
-                </li> ) : cart.items.map(items => (
-                  <li key={items.orderItemsId}>
-                    <div className='w-full h-28 rounded-lg bg-gray-300 flex space-x-3'>
-                      <div className='w-24 h-20 flex justify-center items-start'>
-                        <img className='w-24 h-20 ml-4 object-contain' src={getImageById(items.productId)} alt={items.name || ""} />
-                      </div>
-                      <ul className='flex flex-col'>
-                        <li className='flex flex-row'>
-                          <h3 className='mt-3 font-bold'>{items.name}</h3>
-                          <button className='absolute right-9 mt-2' onClick={() => removeItem(items.orderItemsId)}>
-                            <IoClose size={17}/>
-                          </button>
-                        </li>
-                        <li>
-                          <h3 className='text-xs font-sans'>{items.productDescription}</h3>
-                        </li>
-                        <li className='flex flex-row space-x-3'>
-                          <h3 className='absolute right-24 text-xs font-semibold mt-1'>Quantity :</h3>
-                          <button className='absolute right-20' onClick={() => decQty(items.orderItemsId, items.qty)}>
-                            ‹ 
-                          </button>
-                          <div className='bg-white w-5 h-4 absolute right-[53px] mt-[5px]'>
-                            <h2 className='flex justify-center items-center absolute  ml-[7px] text-xs'>{items.qty}</h2>
-                          </div>
-                          <button className='absolute right-10' onClick={() => incQty(items.orderItemsId, items.qty)}> › </button>
-                        </li>
-                        <li>
-                          <div className='bg-gray-300 rounded-sm w-full h-4' />
-                        </li>
-                        <li>
-                          <div className='bg-gray-100 rounded-b-lg w-[336.1px] h-7 mt-4 absolute right-6'>
-                            <h2 className='absolute right-5 mt-[4.2px] text-sm font-semibold '>
-                              ฿{Number(items.subtotal).toLocaleString()}
-                            </h2>
-                          </div>
-                        </li>
-                      </ul>
+                <p className="text-gray-500 text-center py-10">ตะกร้ายังว่าง</p>
+              ) : (
+                cart.items.map((item) => (
+                  <div
+                    key={item.orderItemsId}
+                    className="border border-gray-200 rounded-xl p-3 flex gap-3"
+                  >
+                    <div className="w-24 h-20 rounded-lg bg-gray-50 overflow-hidden grid place-items-center">
+                      <img
+                        src={getImageById(item.productId)}
+                        alt={item.name}
+                        className="object-contain w-full h-full"
+                      />
                     </div>
-                  </li>
-              ))}
-            </ul>
-            <hr className="border-black border-t-2 absolute bottom-24 left-7 right-7"/>
-            <ul>
-              <li>
-                <h1 className='absolute bottom-8 text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
-              </li>
-              <li>
-                <button onClick={goToAddress} className='w-20 h-10 absolute bottom-7 right-4 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-800 transition'>
-                  CheckOut
-                </button>
-              </li>
-            </ul>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-semibold truncate">{item.name}</h4>
+                        <button
+                          onClick={() => removeItem(item.orderItemsId)}
+                          className="text-gray-500 hover:text-black"
+                        >
+                          <IoClose size={16} />
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 line-clamp-2">
+                        {item.productDescription}
+                      </p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <GhostButton onClick={() => decQty(item.orderItemsId, item.qty)}>−</GhostButton>
+                        <span className="w-8 text-center">{item.qty}</span>
+                        <GhostButton onClick={() => incQty(item.orderItemsId, item.qty)}>+</GhostButton>
+                        <span className="ml-auto font-semibold">
+                          ฿{Number(item.subtotal).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-gray-600">ยอดรวม</span>
+                <span className="text-xl font-bold">
+                  ฿{Number(cart.actualPrice || 0).toLocaleString()}
+                </span>
+              </div>
+              <PrimaryButton className="w-full" onClick={() => navigate("/pages/Address")}>
+                ชำระเงิน
+              </PrimaryButton>
+            </div>
           </div>
         </div>
       )}
@@ -296,542 +314,417 @@ function Admin() {
   );
 }
 
+/* ====================== TAB: PRODUCTS ====================== */
+function ProductsTab() {
+  const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-
-  function ProductTab(){
-
-    const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
-    const [,setuserprofile] = useState({ addressId: [0], items: [0]});
-    
-
-    async function refreshUserprofile() {
-        const { data } = await axios.get(`http://localhost:5283/api/Address/UserInfo`, { headers: auth() });
-        setuserprofile({
-            addressId: data?.addressId ?? [0],
-            items: data?.items ?? [0],
-        });
+  // Add
+  const [form, setForm] = useState({
+    ProductId: "",
+    CategoryId: "",
+    ProductName: "",
+    ProductDescription: "",
+    ProductPrice: "",
+  });
+  const onChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const onAdd = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.post(
+        "/Product/AddProduct",
+        {
+          ProductId: form.ProductId,
+          CategoryId: form.CategoryId,
+          ProductName: form.ProductName,
+          ProductDescription: form.ProductDescription,
+          ProductPrice: form.ProductPrice,
+          IsActive: true,
+          ProductId2: form.ProductId, // (คงตามของเดิม)
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("เพิ่มสำเร็จ");
+      console.log(res.data);
+      setForm({
+        ProductId: "",
+        CategoryId: "",
+        ProductName: "",
+        ProductDescription: "",
+        ProductPrice: "",
+      });
+    } catch (err) {
+      if (err?.response && typeof err.response.data === "string") alert("มีอยู่แล้ว");
+      else alert("ยังไม่ได้ใส่ข้อมูล");
     }
+  };
 
-    
-    const [form , setForm] = useState({
-            ProductId: '',
-            CategoryId: '',
-            ProductName: '',
-            ProductDescription: '',
-            ProductPrice: '',
-        });
-
-
-            const handleChange = (e) =>{
-                setForm({
-                    ...form,
-                    [e.target.name]:e.target.value,
-                });
-            };
-
-        const handleAdd = async(e) =>{
-        e.preventDefault();
-        try{
-
-            const token = localStorage.getItem("token");
-            const API = await axios.post(`http://localhost:5283/api/Product/AddProduct`,{    
-
-                ProductId: form.ProductId,
-                CategoryId: form.CategoryId,
-                ProductName: form.ProductName,
-                ProductDescription: form.ProductDescription,
-                ProductPrice: form.ProductPrice,
-                IsActive: true,
-
-                ProductId2: form.ProductId,
-
-            },
-            {
-                headers: {
-                    Authorization:`Bearer ${token}`,
-                },
-            }
-            );
-            alert("เพิ่มสำเร็จ");
-
-            console.log("API Response:", API.data);
-        }catch(error){
-            if (error.response && typeof error.response.data === 'string') {
-                alert("มีอยู่แล้ว");
-
-            } else 
-            {
-                alert("ยังไม่ได้ใส่ข้อมูล");
-
-            }
-        }
-    };
-
-    const [productId, setProductId] = useState("");
-
-    const handleDelete = async () => {
-        if (!productId){
-            alert("กรอก productid ก่อน");
-            return;
-        }
-        try{
-            await axios.delete(`http://localhost:5283/api/Product/DropProduct`,{
-                headers: auth(),
-                params: { ProductId: Number(productId) }
-            }
-            );
-            alert("success")
-        }catch (err) {
-            if (err.response) {
-                alert("delete fail")
-            } else {
-                alert("error")
-            }
-        }
+  // Delete
+  const [dropId, setDropId] = useState("");
+  const onDelete = async () => {
+    if (!dropId) return alert("กรอก ProductId ก่อน");
+    try {
+      await api.delete("/Product/DropProduct", {
+        headers: auth(),
+        params: { ProductId: Number(dropId) },
+      });
+      alert("ลบสำเร็จ");
+      setDropId("");
+    } catch (err) {
+      alert(err?.response ? "ลบไม่สำเร็จ" : "error");
     }
+  };
 
-    useEffect(() => {refreshUserprofile();}, []);
-
-    const[editform, setEditform] = useState({
-
-        ProductId: '',
-        CategoryId: '',
-        ProductName: '',
-        ProductDescription: '',
-        ProductPrice: '',
-        Stock: '',
-        IsActive: '1'
-         
-    });
-
-    const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditform(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleEdit = async () =>{
-        if(!editform.ProductId){
-            alert("ไม่มีproduct id");
-            return;
-        }
-        try{
-            const token = localStorage.getItem("token");
-            await axios.put(`http://localhost:5283/api/Product/EditProduct`,{
-                ProductId: Number(editform.ProductId),
-                CategoryId: Number(editform.CategoryId),
-                ProductName: editform.ProductName,
-                ProductDescription: editform.ProductDescription,
-                ProductPrice: parseFloat(editform.ProductPrice || "0"),
-            },
-            {
-                headers:{Authorization: `Bearer ${token}`},
-                params: { ProductId: Number(editform.ProductId) },
-            }
-            );
-            alert("success");
-        }catch (err) {
-            if (err.response?.status === 404) alert("ไม่พบสินค้า");
-            else alert(err.response?.data || "แก้ไขไม่สำเร็จ");
-        }
+  // Edit
+  const [edit, setEdit] = useState({
+    ProductId: "",
+    CategoryId: "",
+    ProductName: "",
+    ProductDescription: "",
+    ProductPrice: "",
+  });
+  const onEditChange = (e) => setEdit((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const onEdit = async () => {
+    if (!edit.ProductId) return alert("ไม่มี ProductId");
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(
+        "/Product/EditProduct",
+        {
+          ProductId: Number(edit.ProductId),
+          CategoryId: Number(edit.CategoryId),
+          ProductName: edit.ProductName,
+          ProductDescription: edit.ProductDescription,
+          ProductPrice: parseFloat(edit.ProductPrice || "0"),
+        },
+        { headers: { Authorization: `Bearer ${token}` }, params: { ProductId: Number(edit.ProductId) } }
+      );
+      alert("แก้ไขสำเร็จ");
+    } catch (err) {
+      if (err.response?.status === 404) alert("ไม่พบสินค้า");
+      else alert(err.response?.data || "แก้ไขไม่สำเร็จ");
     }
+  };
 
-    return (
-        <div className='space-y-6'>
-            <ul className='flex flex-row space-x-[380px]'>
-                <li>
-                    <h1 className='text-2xl font-semibold'>Add Product</h1>
-                </li>
-                <li>
-                     <h1 className='text-2xl font-semibold'>Drop Product</h1>
-                </li>
-            </ul>
-            <ul className='flex flex-row space-x-9'>
-                <li>
-                    <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-                        <ul className='flex flex-row space-x-4 ml-[10px]'>
-                            <li>
-                                <h1 className='-ml-[116px]'>Product Id</h1>
-                                <input type="number" name='ProductId' className='w-fit bg-gray-200 rounded-lg text-center' value={form.ProductId} onChange={handleChange}/>
-                            </li>
-                            <li className='ml-4'> 
-                                <h1 className='-ml-[110px]'>Category Id</h1>
-                                <input type="number" name='CategoryId' className='w-fit bg-gray-200 rounded-lg text-center' value={form.CategoryId} onChange={handleChange}/> 
-                            </li>
-                        </ul>
-                        <ul className='space-y-4 flex flex-col'>
-                            <li>
-                                <h1 className='text-start ml-3'>Product Name</h1>
-                                <input type="text" name='ProductName' className='w-[410px] bg-gray-200 rounded-lg' value={form.ProductName} onChange={handleChange}/> 
-                            </li>
-                            <li>
-                                <h1 className='text-start ml-3'>Product Description</h1>
-                                <input type="text" name='ProductDescription' className='w-[410px] bg-gray-200 rounded-lg' value={form.ProductDescription} onChange={handleChange}/> 
-                            </li>
-                        </ul>
-                        <ul className='relative'>
-                            <li>
-                                <h1 className='text-start ml-3'>Product Price</h1>
-                                <input type="number" name='ProductPrice' className='w-[103px] bg-gray-200 rounded-lg absolute left-[10px] text-center' value={form.ProductPrice} onChange={handleChange}/> 
-                            </li>
-                            <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[150px] absolute -bottom-[235px]' onClick={handleAdd} >save</button>
-                        </ul>
-                    </div>
-                </li>
-                <li>
-                    <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-                        <ul className='flex flex-row space-x-4 ml-[10px]'>
-                            <li>
-                                <h1 className='-ml-[116px]'>Product Id</h1>
-                                <input type="number"className='w-fit bg-gray-200 rounded-lg text-center' value={productId} onChange={(e) => setProductId(e.target.value)}/>
-                            </li>
-                            <li className='relative'>
-                                <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[140px] absolute -bottom-[403px]' onClick={handleDelete}>save</button>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-            <h1 className='text-2xl font-semibold'>Edit Product</h1>
-            <ul className='flex flex-row space-x-9'>
-                <li>
-                    <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-                        <ul className='flex flex-row space-x-4 ml-[10px]'>
-                            <li>
-                                <h1 className='-ml-[116px]'>Product Id</h1>
-                                <input type="number" name='ProductId' className='w-fit bg-gray-200 rounded-lg text-center' value={editform.ProductId} onChange={handleEditChange}/>
-                            </li>
-                            <li className='ml-4'> 
-                                <h1 className='-ml-[110px]'>Category Id</h1>
-                                <input type="number" name='CategoryId' className='w-fit bg-gray-200 rounded-lg text-center' value={editform.CategoryId} onChange={handleEditChange}/> 
-                            </li>
-                        </ul>
-                        <ul className='space-y-4 flex flex-col'>
-                            <li>
-                                <h1 className='text-start ml-3'>Product Name</h1>
-                                <input type="text" name='ProductName' className='w-[410px] bg-gray-200 rounded-lg' value={editform.ProductName} onChange={handleEditChange}/> 
-                            </li>
-                            <li>
-                                <h1 className='text-start ml-3'>Product Description</h1>
-                                <input type="text" name='ProductDescription' className='w-[410px] bg-gray-200 rounded-lg' value={editform.ProductDescription} onChange={handleEditChange}/> 
-                            </li>
-                        </ul>
-                        <ul className='relative'>
-                            <li>
-                                <h1 className='text-start ml-3'>Product Price</h1>
-                                <input type="number" name='ProductPrice' className='w-[103px] bg-gray-200 rounded-lg absolute left-[10px] text-center' value={editform.ProductPrice} onChange={handleEditChange}/> 
-                            </li>
-                            <li>
-                                <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[150px] absolute -bottom-[235px]' onClick={handleEdit} >save</button>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    );
-  }
+  return (
+    <div className="grid gap-6">
+      {/* Add & Delete in two columns */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <Section title="Add Product">
+          <form className="grid gap-4" onSubmit={onAdd}>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Product Id">
+                <NumberInput name="ProductId" value={form.ProductId} onChange={onChange} />
+              </Field>
+              <Field label="Category Id">
+                <NumberInput name="CategoryId" value={form.CategoryId} onChange={onChange} />
+              </Field>
+            </div>
+            <Field label="Product Name">
+              <Input name="ProductName" value={form.ProductName} onChange={onChange} />
+            </Field>
+            <Field label="Product Description">
+              <Input name="ProductDescription" value={form.ProductDescription} onChange={onChange} />
+            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Product Price">
+                <NumberInput name="ProductPrice" value={form.ProductPrice} onChange={onChange} />
+              </Field>
+            </div>
+            <div className="flex gap-3">
+              <PrimaryButton type="submit">Save</PrimaryButton>
+              <GhostButton type="reset" onClick={() => setForm({
+                ProductId: "",
+                CategoryId: "",
+                ProductName: "",
+                ProductDescription: "",
+                ProductPrice: "",
+              })}>
+                Clear
+              </GhostButton>
+            </div>
+          </form>
+        </Section>
 
-  function CategoryTab(){
+        <Section title="Delete Product">
+          <div className="grid gap-4">
+            <Field label="Product Id">
+              <NumberInput value={dropId} onChange={(e) => setDropId(e.target.value)} />
+            </Field>
+            <div className="flex gap-3">
+              <PrimaryButton onClick={onDelete}>Delete</PrimaryButton>
+              <GhostButton onClick={() => setDropId("")}>Clear</GhostButton>
+            </div>
+          </div>
+        </Section>
+      </div>
 
-    const [form , setForm] = useState({
-        CategoryId: '',
-        CategoryName: '',
-        CategoryDescription: '',
-    });
-
-    const handleChange = (e) =>{
-        setForm({
-            ...form,
-            [e.target.name]:e.target.value,
-        });
-    };
-
-    const handleCategory = async(e) =>{
-        e.preventDefault();
-        try{
-            const token = localStorage.getItem("token");
-            const API = await axios.post(`http://localhost:5283/api/Category/AddCategory`,{    
-
-                CategoryId: form.CategoryId,
-                CategoryName: form.CategoryName,
-                CategoryDescription: form.CategoryDescription,
-                IsActive: true
-            },
-            {
-                headers: { Authorization:`Bearer ${token}`,}
-            }
-            );
-            alert("เพิ่มสำเร็จ");
-
-            console.log("API Response:", API.data);
-        }catch(error){
-            if (error.response && typeof error.response.data === 'string') {
-                alert("มีอยู่แล้ว");
-
-            } else 
-            {
-                alert("ยังไม่ใส่ข้อมูล");
-
-            }
-        }
-    };
-
-        const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}`});
-
-        const [categoryId, setcategoryId] = useState("");
-
-        const handleDelete = async () => {
-        if (!categoryId){
-            alert("กรอก categoryid ก่อน");
-            return;
-        }
-        try{
-            await axios.delete(`http://localhost:5283/api/Category/DropCategory`,{
-                headers: auth(),
-                params: { CategoryId: Number(categoryId) }
-            }
-            );
-            alert("success")
-        }catch (err) {
-            if (err.response) {
-                alert("delete fail")
-            } else {
-                alert("error")
-            }
-        }
-    }
-
-    const[editcate, seteditCategory] = useState({
-        CategoryId: '',
-        CategoryName: '',
-        CategoryDescription: '',
-        IsActive: '1'
-    })
-
-        const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        seteditCategory(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleedit = async () => {
-        if(!editcate.CategoryId){
-            alert("ไม่มีid");
-            return;
-        }
-        try{
-            const token = localStorage.getItem("token")
-            await axios.put(`http://localhost:5283/api/Category/EditCategory`,{
-                CategoryName: editcate.CategoryName,
-                CategoryDescription: editcate.CategoryDescription,
-            },
-            {
-                headers:{Authorization: `Bearer ${token}`},
-                params: { CategoryId: Number(editcate.CategoryId) },
-            }
-            );
-            alert("แก้ไขสำเร็จ");
-
-        }catch (err) {
-            if (err.response?.status === 404) alert("ไม่พบสินค้า");
-            else alert(err.response?.data || "แก้ไขไม่สำเร็จ");
-        }
-    }
-
-    return (
-        <div className='space-y-6'>
-            <ul className='flex flex-row space-x-[365px]'>
-                <li>
-                    <h1 className='text-2xl font-semibold'>Add Category</h1>
-                </li>
-                <li>
-                     <h1 className='text-2xl font-semibold'>Drop Category</h1>
-                </li>
-            </ul>
-            <ul className='flex flex-row space-x-9'>
-                <li>
-                    <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-                        <ul className='flex flex-row space-x-4 ml-[10px]'>
-                            <li>
-                                <h1 className='-ml-3'>Category Id</h1>
-                                <input type="number" name='CategoryId' className='w-[103px] bg-gray-200 rounded-lg text-center' value={form.CategoryId} onChange={handleChange}/>
-                            </li>
-                        </ul>
-                        <ul className='space-y-4 flex flex-col relative'>
-                            <li>
-                                <h1 className='text-start ml-3'>Category Name</h1>
-                                <input type="text" name='CategoryName' className='w-[410px] bg-gray-200 rounded-lg' value={form.CategoryName} onChange={handleChange}/> 
-                            </li>
-                            <li>
-                                <h1 className='text-start ml-3'>Category Description</h1>
-                                <input type="text" name='CategoryDescription' className='w-[410px] bg-gray-200 rounded-lg' value={form.CategoryDescription} onChange={handleChange}/> 
-                            </li>
-                            <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[365px] absolute -bottom-[275px]' onClick={handleCategory}>save</button>
-
-                        </ul>
-                    </div>
-                </li>
-                <li>
-                    <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-                        <ul className='flex flex-row space-x-4 ml-[10px] relative'>
-                            <li>
-                                <h1 className='-ml-3'>Category Id</h1>
-                                <input type="number"className='w-[103px] bg-gray-200 rounded-lg text-center' value={categoryId} onChange={(e) => setcategoryId(e.target.value)}/>
-                            </li>
-                            <li>
-                                <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[235px] absolute -bottom-[403px]' onClick={handleDelete}>save</button>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-            <h1 className='text-2xl font-semibold'>Edit Category</h1>
-            <ul className='flex flex-row space-x-9'>
-                <li>
-                    <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-                        <ul className='flex flex-row space-x-4 ml-[10px]'>
-                            <li>
-                                <h1 className='-ml-3'>Category Id</h1>
-                                <input type="number" name='CategoryId' className='w-[103px] bg-gray-200 rounded-lg text-center' value={editcate.CategoryId} onChange={handleEditChange}/>
-                            </li>
-                        </ul>
-                        <ul className='space-y-4 flex flex-col relative'>
-                            <li>
-                                <h1 className='text-start ml-3'>Category Name</h1>
-                                <input type="text" name='CategoryName' className='w-[410px] bg-gray-200 rounded-lg' value={editcate.CategoryName} onChange={handleEditChange}/> 
-                            </li>
-                            <li>
-                                <h1 className='text-start ml-3'>Category Description</h1>
-                                <input type="text" name='CategoryDescription' className='w-[410px] bg-gray-200 rounded-lg' value={editcate.CategoryDescription} onChange={handleEditChange}/> 
-                            </li>
-                            <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[365px] absolute -bottom-[275px]' onClick={handleedit}>save</button>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    );
-  }
-
-
-  
-  function RoleTab(){
-
-    const[editrole, seteditrole] = useState({
-        UserId: '',
-        Roles: ''
-    })
-
-    const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        seteditrole(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleedit = async () => {
-        if(!editrole.UserId){
-            alert("ไม่มีid");
-            return;
-        }
-        try{
-            const token = localStorage.getItem("token")
-            await axios.put(`http://localhost:5283/api/Authen/EditRole`,{
-                Roles:editrole.Roles,
-            },
-            {
-                headers:{Authorization: `Bearer ${token}`},
-                params: { UsersId: Number(editrole.UserId) },
-            }
-            );
-            alert("แก้ไขสำเร็จ");
-
-        }catch (err) {
-            if (err.response?.status === 404) alert("ไม่พบสินค้า");
-            else alert(err.response?.data || "แก้ไขไม่สำเร็จ");
-        }
-    }
-      
-    return (
-      <div className='space-y-6'>
-          <h1 className='text-2xl font-semibold'>Edit Role</h1>
-          <div className='border border-gray-300 rounded-xl shadow hover:shadow-lg transition p-6 w-[480px] h-[500px] text-center bg-white flex-col space-y-4'>
-            <ul className='flex flex-row space-x-4 ml-[10px]'>
-              <li>
-                <h1 className='-ml-12'>UserId</h1>
-                <input type="number" name='UserId' className='w-[103px] bg-gray-200 rounded-lg text-center' value={editrole.UserId} onChange={handleEditChange}/>
-              </li>
-            </ul>
-            <ul className='space-y-4 flex flex-col'>
-                <li>
-                    <h1 className='text-start ml-3'>Roles</h1>
-                    <select name="Roles" value={editrole.Roles} onChange={handleEditChange} className="w-[200px] bg-gray-200 rounded-lg text-center absolute left-[370px]">
-                        <option value="0">Admin</option>
-                        <option value="1">Member</option>
-                    </select>
-                </li>
-            </ul>
-            <button className='border-2 border-black hover hover:bg-gray-400 rounded-lg w-16 h-8 ml-[150px] absolute bottom-52' onClick={handleedit}>save</button>
+      <Section title="Edit Product">
+        <div className="grid gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <Field label="Product Id">
+              <NumberInput name="ProductId" value={edit.ProductId} onChange={onEditChange} />
+            </Field>
+            <Field label="Category Id">
+              <NumberInput name="CategoryId" value={edit.CategoryId} onChange={onEditChange} />
+            </Field>
+          </div>
+          <Field label="Product Name">
+            <Input name="ProductName" value={edit.ProductName} onChange={onEditChange} />
+          </Field>
+          <Field label="Product Description">
+            <Input name="ProductDescription" value={edit.ProductDescription} onChange={onEditChange} />
+          </Field>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Field label="Product Price">
+              <NumberInput name="ProductPrice" value={edit.ProductPrice} onChange={onEditChange} />
+            </Field>
+          </div>
+          <div className="flex gap-3">
+            <PrimaryButton onClick={onEdit}>Save changes</PrimaryButton>
+            <GhostButton onClick={() => setEdit({
+              ProductId: "",
+              CategoryId: "",
+              ProductName: "",
+              ProductDescription: "",
+              ProductPrice: "",
+            })}>
+              Clear
+            </GhostButton>
           </div>
         </div>
-    );
-  }
-
-
-
-  function FavouriteTab(){
-    return (
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-semibold'>My Favourite</h1>
-        <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 w-full h-fit text-center flex items-center justify-center bg-white'>
-          <p className="text-gray-500 items-center justify-center flex">ยังไม่มีสินค้าที่ชอบ</p>
-        </div>
-      </div>
-    );
-  }
-
-
-
-  function AddressTab(){
-
-  const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
-  const [address, setAddress] = useState({ addressId: [0], items: [0]});
-
-    async function refreshAddress() {
-        const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
-        setAddress({
-            addressId: data?.addressId ?? [0],
-            items: data?.items ?? [0],
-        });
-    }
-
-    useEffect(() => {refreshAddress();}, []);
-
-    async function removeAddress(rowId) {
-    await axios.delete(`http://localhost:5283/api/Address/DelAddress`,  
-        { 
-            params: { AddressId: rowId }, headers: auth() 
-        });
-         refreshAddress();
-    }   
-
-    return (
-      <div className='space-y-6'>
-        <h1 className='text-2xl font-semibold'>My Address</h1>
-        <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 w-full h-fit text-center flex items-center justify-start bg-white flex-col space-y-4'>
-        {address.items.length === 0 ? (
-          <p className="text-gray-500 items-center justify-center flex">ยังไม่มีที่อยู่</p>
-        ) : (
-          address.items.map(item => (
-            <div key={item.addressId} className='bg-gray-200 w-full h-[100px] rounded-lg text-left p-3'>
-              <button onClick={() => removeAddress(item.addressId)} className='absolute right-[73px] -mt-2'>x</button>
-              <h1 className='font-medium'>
-                {item.name}, {item.district}, {item.province} {item.postalCode}
-              </h1>
-              <p className="text-sm text-gray-600">PhoneNumber:{item.phoneNumber}</p>
-            </div>
-          ))
-        )}
-      </div>
+      </Section>
     </div>
-    );
+  );
+}
+
+/* ====================== TAB: CATEGORIES ====================== */
+function CategoriesTab() {
+  const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+
+  // Add
+  const [form, setForm] = useState({ CategoryId: "", CategoryName: "", CategoryDescription: "" });
+  const onChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const onAdd = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.post(
+        "/Category/AddCategory",
+        {
+          CategoryId: form.CategoryId,
+          CategoryName: form.CategoryName,
+          CategoryDescription: form.CategoryDescription,
+          IsActive: true,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("เพิ่มสำเร็จ");
+      console.log(res.data);
+      setForm({ CategoryId: "", CategoryName: "", CategoryDescription: "" });
+    } catch (err) {
+      if (err.response && typeof err.response.data === "string") alert("มีอยู่แล้ว");
+      else alert("ยังไม่ใส่ข้อมูล");
+    }
+  };
+
+  // Delete
+  const [dropId, setDropId] = useState("");
+  const onDelete = async () => {
+    if (!dropId) return alert("กรอก CategoryId ก่อน");
+    try {
+      await api.delete("/Category/DropCategory", {
+        headers: auth(),
+        params: { CategoryId: Number(dropId) },
+      });
+      alert("ลบสำเร็จ");
+      setDropId("");
+    } catch (err) {
+      alert(err?.response ? "ลบไม่สำเร็จ" : "error");
+    }
+  };
+
+  // Edit
+  const [edit, setEdit] = useState({
+    CategoryId: "",
+    CategoryName: "",
+    CategoryDescription: "",
+  });
+  const onEditChange = (e) => setEdit((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const onEdit = async () => {
+    if (!edit.CategoryId) return alert("ไม่มี CategoryId");
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(
+        "/Category/EditCategory",
+        {
+          CategoryName: edit.CategoryName,
+          CategoryDescription: edit.CategoryDescription,
+        },
+        { headers: { Authorization: `Bearer ${token}` }, params: { CategoryId: Number(edit.CategoryId) } }
+      );
+      alert("แก้ไขสำเร็จ");
+    } catch (err) {
+      if (err.response?.status === 404) alert("ไม่พบหมวดหมู่");
+      else alert(err.response?.data || "แก้ไขไม่สำเร็จ");
+    }
+  };
+
+  return (
+    <div className="grid gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
+        <Section title="Add Category">
+          <form className="grid gap-4" onSubmit={onAdd}>
+            <Field label="Category Id">
+              <NumberInput name="CategoryId" value={form.CategoryId} onChange={onChange} />
+            </Field>
+            <Field label="Category Name">
+              <Input name="CategoryName" value={form.CategoryName} onChange={onChange} />
+            </Field>
+            <Field label="Category Description">
+              <Input name="CategoryDescription" value={form.CategoryDescription} onChange={onChange} />
+            </Field>
+            <div className="flex gap-3">
+              <PrimaryButton type="submit">Save</PrimaryButton>
+              <GhostButton type="reset" onClick={() => setForm({ CategoryId: "", CategoryName: "", CategoryDescription: "" })}>
+                Clear
+              </GhostButton>
+            </div>
+          </form>
+        </Section>
+
+        <Section title="Delete Category">
+          <div className="grid gap-4">
+            <Field label="Category Id">
+              <NumberInput value={dropId} onChange={(e) => setDropId(e.target.value)} />
+            </Field>
+            <div className="flex gap-3">
+              <PrimaryButton onClick={onDelete}>Delete</PrimaryButton>
+              <GhostButton onClick={() => setDropId("")}>Clear</GhostButton>
+            </div>
+          </div>
+        </Section>
+      </div>
+
+      <Section title="Edit Category">
+        <div className="grid gap-4">
+          <Field label="Category Id">
+            <NumberInput name="CategoryId" value={edit.CategoryId} onChange={onEditChange} />
+          </Field>
+          <Field label="Category Name">
+            <Input name="CategoryName" value={edit.CategoryName} onChange={onEditChange} />
+          </Field>
+          <Field label="Category Description">
+            <Input name="CategoryDescription" value={edit.CategoryDescription} onChange={onEditChange} />
+          </Field>
+          <div className="flex gap-3">
+            <PrimaryButton onClick={onEdit}>Save changes</PrimaryButton>
+            <GhostButton onClick={() => setEdit({ CategoryId: "", CategoryName: "", CategoryDescription: "" })}>
+              Clear
+            </GhostButton>
+          </div>
+        </div>
+      </Section>
+    </div>
+  );
+}
+
+/* ====================== TAB: ROLES ====================== */
+function RolesTab() {
+  const [edit, setEdit] = useState({ UserId: "", Roles: "0" }); // 0 Admin, 1 Member
+  const onChange = (e) => setEdit((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const onSave = async () => {
+    if (!edit.UserId) return alert("ไม่มี UserId");
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(
+        "/Authen/EditRole",
+        { Roles: edit.Roles },
+        { headers: { Authorization: `Bearer ${token}` }, params: { UsersId: Number(edit.UserId) } }
+      );
+      alert("แก้ไขสำเร็จ");
+    } catch (err) {
+      if (err.response?.status === 404) alert("ไม่พบผู้ใช้");
+      else alert(err.response?.data || "แก้ไขไม่สำเร็จ");
+    }
+  };
+
+  return (
+    <div className="grid gap-6">
+      <Section title="Edit Role">
+        <div className="grid gap-4 max-w-lg">
+          <Field label="User Id">
+            <NumberInput name="UserId" value={edit.UserId} onChange={onChange} />
+          </Field>
+          <Field label="Roles">
+            <select
+              name="Roles"
+              value={edit.Roles}
+              onChange={onChange}
+              className="w-full rounded-lg border border-gray-300 px-3 h-10 bg-white"
+            >
+              <option value="0">Admin</option>
+              <option value="1">Member</option>
+            </select>
+          </Field>
+          <div className="flex gap-3">
+            <PrimaryButton onClick={onSave}>Save</PrimaryButton>
+            <GhostButton onClick={() => setEdit({ UserId: "", Roles: "1" })}>Clear</GhostButton>
+          </div>
+        </div>
+      </Section>
+    </div>
+  );
+}
+
+/* ====================== TAB: ADDRESSES ====================== */
+function AddressesTab() {
+  const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+  const [address, setAddress] = useState({ addressId: [], items: [] });
+
+  async function refreshAddress() {
+    const { data } = await api.get("/Address/UiAddress2", { headers: auth() });
+    setAddress({
+      addressId: data?.addressId ?? [],
+      items: data?.items ?? [],
+    });
+  }
+  useEffect(() => {
+    refreshAddress();
+  }, []);
+
+  async function removeAddress(rowId) {
+    await api.delete("/Address/DelAddress", {
+      params: { AddressId: rowId },
+      headers: auth(),
+    });
+    refreshAddress();
   }
 
-export default Admin
+  return (
+    <div className="grid gap-6">
+      <Section title="My Address">
+        {address.items?.length === 0 ? (
+          <p className="text-gray-500">ยังไม่มีที่อยู่</p>
+        ) : (
+          <div className="grid gap-3">
+            {address.items.map((item) => (
+              <div key={item.addressId} className="bg-gray-50 border border-gray-200 rounded-xl p-4 relative">
+                <button
+                  onClick={() => removeAddress(item.addressId)}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-black"
+                >
+                  <IoClose size={18} />
+                </button>
+                <h3 className="font-semibold">
+                  {item.name}, {item.district}, {item.province} {item.postalCode}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">Phone: {item.phoneNumber}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </Section>
+    </div>
+  );
+}

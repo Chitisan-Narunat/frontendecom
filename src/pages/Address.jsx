@@ -1,436 +1,864 @@
-import Navbar from '../components/Navbar'
-import React, { useState, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { IoClose } from 'react-icons/io5';
-import { getImageById } from "/Styles/product-images"; 
-import axios from 'axios';
+import Navbar from "../components/Navbar";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { IoClose } from "react-icons/io5";
+import { getImageById } from "/Styles/product-images";
+import toast, { Toaster } from "react-hot-toast";
+import { api } from "../../services/api";
 
+const currency = (n) => `฿${Number(n || 0).toLocaleString("th-TH")}`;
+
+const shippingOptions = [
+  { key: "standard", label: "ส่งปกติ", price: 40 },
+  { key: "express", label: "ส่งด่วน", price: 60 },
+  { key: "sameDay", label: "ส่งภายในวันนี้", price: 100 },
+];
 
 function Address() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuRendered, setIsMenuRendered] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isMenuRendered, setIsMenuRendered] = useState(false);
-    const [isMenuVisible, setIsMenuVisible] = useState(false);
-    const [isAddressOpen , setIsAddressOpen] = useState(false);
-    const [activeIndex, setActiveIndex] = useState();
-    const [activeIndex2, setActiveIndex2] = useState();
+  const [isAddressOpen, setIsAddressOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(); // shipping index
+  const [activeIndex2, setActiveIndex2] = useState(); // payment index (UI เท่านั้น)
 
-    
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-    const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+  const auth = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  });
 
+  const navigate = useNavigate();
+  const goToHome = () => navigate("/pages/Home");
+  const navigate2 = useNavigate();
+  const goToSpeakers = () => navigate2("/pages/Speakers");
+  const navigate3 = useNavigate();
+  const goToHeadphones = () => navigate3("/pages/Headphones");
+  const navigate11 = useNavigate();
+  const goToSoundbars = () => navigate11("/pages/Soundbars");
 
-    
-    const navigate = useNavigate();
-    const goToHome = () =>{
-      navigate('/pages/Home'); 
+  const [address, setAddress] = useState({ addressId: 0, items: [] });
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("selectedAddressId");
+    if (saved) setSelectedAddressId(Number(saved));
+  }, []);
+  useEffect(() => {
+    if (selectedAddressId)
+      localStorage.setItem("selectedAddressId", String(selectedAddressId));
+  }, [selectedAddressId]);
+
+  async function refreshAddress() {
+    try {
+      const { data } = await api.get(`/Address/UiAddress2`, {
+        headers: auth(),
+      });
+      const items = Array.isArray(data?.items) ? data.items : [];
+      const apiDefaultId = Number(data?.addressId) || 0;
+      const fallbackId = items[0]?.addressId ?? 0;
+
+      setAddress({ addressId: apiDefaultId || fallbackId, items });
+
+      setSelectedAddressId((prev) => {
+        if (prev && items.some((a) => a.addressId === prev)) return prev;
+        return apiDefaultId || fallbackId;
+      });
+    } catch (err) {
+      console.log("[UiAddress2][ERR]", err?.response || err);
+      setAddress({ addressId: 0, items: [] });
+      setSelectedAddressId(0);
     }
+  }
+  useEffect(() => {
+    refreshAddress();
+  }, []);
 
-    const navigate2 = useNavigate();
-    const goToSpeakers = () =>{
-        navigate2('/pages/Speakers'); 
-    }
+  const [form, setForm] = useState({
+    FirstName: "",
+    LastName: "",
+    AddressName: "",
+    Province: "",
+    District: "",
+    PostalCode: "",
+    PhoneNumber: "",
+  });
 
-    const navigate3 = useNavigate();
-    const goToHeadphones = () =>{
-        navigate3('/pages/Headphones')
-    }
+  const resetForm = () => {
+    setForm({
+      FirstName: "",
+      LastName: "",
+      AddressName: "",
+      Province: "",
+      District: "",
+      PostalCode: "",
+      PhoneNumber: "",
+    });
+  };
 
-    const navigate11 = useNavigate();
-    const goToSoundbars = () =>{
-          navigate11('/pages/Soundbars')
-    }
-    
+  const closeAddressModal = () => {
+    resetForm();
+    setIsAddressOpen(false);
+  };
 
-    const [address, setAddress] = useState({ addressId: 0, items: []});
-    const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [, setMessage] = useState();
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
+  const handleAddress = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
 
-    useEffect(() => {
-        const saved = localStorage.getItem("selectedAddressId");
-        if (saved) setSelectedAddressId(Number(saved));
-    }, []);
+    const promise = api.post(
+      "/Address/FillAddress",
+      {
+        FirstName: form.FirstName,
+        LastName: form.LastName,
+        AddressName: form.AddressName,
+        Province: form.Province,
+        District: form.District,
+        PostalCode: form.PostalCode,
+        PhoneNumber: form.PhoneNumber,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    useEffect(() => {
-        if (selectedAddressId) localStorage.setItem("selectedAddressId", String(selectedAddressId));
-    }, [selectedAddressId]);
-
-
-    /////////////////////////////// api แสดงที่อยู่. /////////////////////////////////
-
-    async function refreshAddress() {
-        try{
-            const { data } = await axios.get(`http://localhost:5283/api/Address/UiAddress2`, { headers: auth() });
-            const items = Array.isArray(data?.items) ? data.items : [];
-            const apiDefaultId = Number(data?.addressId) || 0;
-            const fallbackId   = items[0]?.addressId ?? 0;
-
-            setAddress({ addressId: apiDefaultId || fallbackId, items });
-
-            setSelectedAddressId(prev => {
-                if (prev && items.some(a => a.addressId === prev)) return prev; 
-                return apiDefaultId || fallbackId;                               
-            });
-        } catch (err) {
-            console.log("[UiAddress2][ERR]", err?.response || err);
-            setAddress({ addressId: 0, items: [] });
-            setSelectedAddressId(0);
-        }
-    }
-    useEffect(() => { refreshAddress(); }, []);
-
-
-    const [form , setForm] = useState({
-        FirstName: '',
-        LastName: '',
-        AddressName: '',
-        Province: '',
-        District: '',
-        PostalCode: '',
-        PhoneNumber: ''
+    toast.promise(promise, {
+      loading: "กำลังบันทึกที่อยู่...",
+      success: "เพิ่มที่อยู่สำเร็จ 🎉",
+      error: "บันทึกไม่สำเร็จ กรุณาลองใหม่ ❌",
     });
 
-    const [message , setMessage] = useState();
-    const handleChange = (e) =>{
-        setForm({
-            ...form,
-            [e.target.name]:e.target.value,
-        });
-    };
-
-
-    /////////////////////////////// api เพิ่มที่อยู่. /////////////////////////////////
-
-    const handleAddress = async(e) =>{
-        e.preventDefault();
-        try{
-            const token = localStorage.getItem("token");
-            const API = await axios.post(`http://localhost:5283/api/Address/FillAddress`,{    
-
-                FirstName: form.FirstName,
-                LastName: form.LastName,
-                AddressName: form.AddressName,
-                Province: form.Province,
-                District: form.District,
-                PostalCode: form.PostalCode,
-                PhoneNumber: form.PhoneNumber
-            },
-            {
-                headers: { Authorization:`Bearer ${token}` }
-            });
-            refreshAddress();
-            setIsAddressOpen(false);
-            setMessage(API.data)
-            console.log("API Response:", API.data);
-
-        }catch(error){
-            if (error.response && typeof error.response.data === 'string') {
-                setMessage(error.response.data);
-            } else 
-            {
-                setMessage('failed');
-            }
-        }
-    };
-
-
-    /////////////////////////////// api จ่ายเงิน. /////////////////////////////////
-
-    const Purchase = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const orderId = Number(localStorage.getItem("currentOrderId"));
-
-            console.log("[PURCHASE] token?", !!token, "orderId=", orderId);
-
-            const API = await axios.put("http://localhost:5283/api/OrderItem/EditStatus",
-                null,
-            {   
-                params: { OrderId: orderId, AddressId: selectedAddressId },
-                headers: { Authorization: `Bearer ${token}` }
-            });
-    
-            setMessage(API.data)
-            console.log("[PURCHASE][OK]", API.status, API.data)
-            alert("ชำระเงินสำเร็จ");
-            navigate("/pages/Home")
-            
-        } catch(error){
-            const status = error?.response?.status;
-            const raw = error?.response?.data;
-            const msg = typeof raw === "string" ? raw : raw?.message || raw?.title || raw?.detail || error?.message;
-            alert("ไม่มีของไอ้ควาย ใส่ตะกร้าก่อนไอเวร");
-
-            if (status === 404 && msg === "No Address") {
-                alert("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
-                navigate("/pages/Address");
-                return;
-            }
-            setMessage(typeof raw === "string" ? raw : "failed");
-        }
-    };
-
-    useEffect(() => {
-        if (isMenuOpen) {
-            setIsMenuRendered(true);
-            setTimeout(() => setIsMenuVisible(true), 10);
-        } else {
-            setIsMenuVisible(false);
-            setTimeout(() => setIsMenuRendered(false), 300); 
-        }
-    }, [isMenuOpen]);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
-    useEffect(() => { refreshCart()},[])
-
-
-/////////////////////////////// refresh cartitem. /////////////////////////////////
-
-    async function refreshCart() {
-        const { data } = await axios.get(`http://localhost:5283/api/OrderItem/Current`, { headers: auth() });
-        setCart({
-            orderId: data?.orderId ?? 0,
-            items: data?.items ?? [],
-            actualPrice: data?.actualPrice ?? 0
-        });
+    try {
+      const { data } = await promise;
+      await refreshAddress();
+      setIsAddressOpen(false);
+      setMessage(data);
+      setForm({
+        FirstName: "",
+        LastName: "",
+        AddressName: "",
+        Province: "",
+        District: "",
+        PostalCode: "",
+        PhoneNumber: "",
+      });
+    } catch (error) {
+      console.error("Address Error:", error);
+      setMessage(error.response?.data || "failed");
     }
+  };
 
-/////////////////////////////// ลบ cartitem. /////////////////////////////////
+  const [cart, setCart] = useState({ orderId: 0, items: [], actualPrice: 0 });
+  async function refreshCart() {
+    const { data } = await api.get(`/OrderItem/Current`, {
+      headers: auth(),
+    });
+    setCart({
+      orderId: data?.orderId ?? 0,
+      items: data?.items ?? [],
+      actualPrice: data?.actualPrice ?? 0,
+    });
+  }
+  useEffect(() => {
+    refreshCart();
+  }, []);
 
-    async function removeItem(rowId) {
-    await axios.delete(`http://localhost:5283/api/OrderItem/DropItem`,  
-        { 
-            params: { OrderItemsId: rowId }, headers: auth() 
-        });
-         refreshCart();
-    }   
+  async function removeItem(rowId) {
+    await api.delete(`/OrderItem/DropItem`, {
+      params: { OrderItemsId: rowId },
+      headers: auth(),
+    });
+    refreshCart();
+  }
 
-/////////////////////////////// เพิ่ม Quantity. /////////////////////////////////
+  async function incQty(rowId, qty) {
+    await api.put(
+      `/OrderItem/EditQuantity`,
+      { quantity: qty + 1 },
+      {
+        params: { OrderItemsId: rowId },
+        headers: { "Content-Type": "application/json", ...auth() },
+      }
+    );
+    refreshCart();
+  }
 
-    async function incQty(rowId, qty) {
-    await axios.put(`http://localhost:5283/api/OrderItem/EditQuantity`,
-        { quantity: qty + 1 },
-        { 
-            params: { OrderItemsId: rowId },
-            headers: { "Content-Type": "application/json", ...auth() } 
-        });
-        refreshCart();
-    }
-
-/////////////////////////////// ลด Quantity. /////////////////////////////////
-
-    async function decQty(rowId, qty) { 
+  async function decQty(rowId, qty) {
     if (qty <= 1) return;
-    await axios.put('http://localhost:5283/api/OrderItem/EditQuantity',
-        { quantity: qty - 1 },
-        { 
-            params: { OrderItemsId: rowId },
-            headers: { "Content-Type": "application/json",...auth()}
-        });    
-        refreshCart ();
-    }   
+    await api.put(
+      `/OrderItem/EditQuantity`,
+      { quantity: qty - 1 },
+      {
+        params: { OrderItemsId: rowId },
+        headers: { "Content-Type": "application/json", ...auth() },
+      }
+    );
+    refreshCart();
+  }
 
-    return (
-        <main>
-            <Navbar onMenuClick={() => setIsMenuOpen(true)}/>
-            <div className='bg-[#edeef0] h-[840px] flex items-start justify-center'>
-                <div className='container mx-auto ml-10'>
-                    <h1 className='text-2xl text-[#212529] text-left font-extrabold mt-24'>ที่อยู่</h1>
-                    <ul className='flex flex-row space-x-28'>
-                        <li>
-                            <div className="relative border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[800px] h-[200px]">
-                                <ul className='flex flex-row space-x-10 items-center'>
-                                    <li>
-                                        <h2 className="text-left text-black text-base">ที่อยู่จัดส่งสินค้า</h2>
-                                    </li>
-                                    <li>
-                                        <button onClick={() => setIsAddressOpen(true)} className="text-sm h-[30px] w-[80px] rounded-lg bg-gray-200 hover:bg-gray-300">
-                                            เพิ่มที่อยู่
-                                        </button>
-                                    </li>
-                                </ul>
-                                <div className="mt-3 absolute left-6 right-6 bottom-6 top-16 overflow-y-auto">
-                                    {address.items.length === 0 ? (
-                                        <button >
+  useEffect(() => {
+    const savedIdx = localStorage.getItem("selectedShippingIndex");
+    if (savedIdx !== null) setActiveIndex(Number(savedIdx));
+  }, []);
 
-                                        </button>
-                                    ) : (
-                                        <ul className="flex flex-wrap gap-3">
-                                            {address.items.map((it) => (
-                                                <li key={it.addressId} className={`p-3 rounded-lg border ${ selectedAddressId === it.addressId
-                                                        ? 'border-rose-400 bg-rose-50'
-                                                        : 'border-gray-200 bg-white'
-                                                    } max-w-full`}>
-                                                    <label className="flex items-start gap-3 cursor-pointer">
-                                                        <input type="radio" name="selectedAddress" className="mt-1" checked={selectedAddressId === it.addressId} onChange={() => setSelectedAddressId(it.addressId)}/>
-                                                        <div className="min-w-0">
-                                                            <div className="font-medium break-words">
-                                                                {it.firstname} {it.lastname} {it.phoneNumber}
-                                                            </div>
-                                                            <div className="text-sm text-gray-600 break-words">
-                                                                {it.name} {it.district} {it.province} {it.postalCode}
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
+  const shippingPrice =
+    activeIndex != null && shippingOptions[activeIndex]
+      ? Number(shippingOptions[activeIndex].price)
+      : 0;
+
+  const grandTotal = Number(cart.actualPrice || 0) + shippingPrice;
+
+  function selectShipping(idx) {
+    setActiveIndex(idx);
+    localStorage.setItem("selectedShippingIndex", String(idx));
+    const opt = shippingOptions[idx];
+    localStorage.setItem("shippingMethod", opt.key);
+    localStorage.setItem("shippingPrice", String(opt.price));
+    localStorage.setItem("shippingSetAt", String(Date.now()));
+  }
+
+  const Purchase = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const orderId = Number(localStorage.getItem("currentOrderId"));
+
+      const API = await api.put("/OrderItem/EditStatus", null, {
+        params: {
+          OrderId: orderId,
+          AddressId: selectedAddressId,
+          ShippingFee: shippingPrice,
+        },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setIsConfirmOpen(false);
+      navigate("/pages/Track");
+      setMessage(API.data);
+      toast.success("ชำระเงินสำเร็จ");
+    } catch (error) {
+      const status = error?.response?.status;
+      const raw = error?.response?.data;
+      const msg =
+        typeof raw === "string"
+          ? raw
+          : raw?.message || raw?.title || raw?.detail || error?.message;
+
+      if (status === 404 && msg === "No Address") {
+        toast.error("ต้องเพิ่มที่อยู่ก่อนชำระเงิน");
+        navigate("/pages/Address");
+        return;
+      }
+      toast.error("ไม่มีของ");
+      setMessage(typeof raw === "string" ? raw : "failed");
+    }
+  };
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setIsMenuRendered(true);
+      setTimeout(() => setIsMenuVisible(true), 10);
+    } else {
+      setIsMenuVisible(false);
+      setTimeout(() => setIsMenuRendered(false), 300);
+    }
+  }, [isMenuOpen]);
+
+  const onlyDigits = (s) => s.replace(/\D/g, "");
+
+  const handleChangeDigitsPostalCode = (e, max) => {
+    const { name, value } = e.target;
+    const v = onlyDigits(value).slice(0, max);
+    setForm((prev) => ({ ...prev, [name]: v }));
+  };
+
+  const handleChangeDigitsPhoneNumber = (
+    e,
+    maxLen,
+    opts = { mustStartZero: true }
+  ) => {
+    const { name } = e.target;
+    let v = (e.target.value || "").replace(/\D/g, "");
+    if (opts.mustStartZero && v.length > 0 && v[0] !== "0") {
+      v = "0" + v;
+    }
+    if (v.length > maxLen) v = v.slice(0, maxLen);
+    setForm((f) => ({ ...f, [name]: v }));
+  };
+
+  return (
+    <main className="min-h-screen bg-[#f6f7f9]">
+      <Navbar onMenuClick={() => setIsMenuOpen(true)} />
+      <div className="pt-24 pb-16">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <header className="mb-8">
+            <h1 className="text-3xl font-semibold tracking-tight text-black">
+              ชำระเงินและจัดส่ง
+            </h1>
+            <p className="text-gray-500 mt-1">
+              ยืนยันที่อยู่ เลือกวิธีจัดส่งและช่องทางชำระเงิน
+            </p>
+          </header>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section className="lg:col-span-2 space-y-6">
+              <div className="bg-white/80 backdrop-blur border border-gray-200 rounded-2xl shadow-sm">
+                <div className="p-6 flex items-center justify-between">
+                  <h2 className="text-lg font-medium text-black">
+                    ที่อยู่จัดส่งสินค้า
+                  </h2>
+                  <button
+                    onClick={() => setIsAddressOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-black text-white text-sm hover:bg-gray-800"
+                  >
+                    เพิ่มที่อยู่
+                  </button>
+                </div>
+                <div className="px-6 pb-6">
+                  {address.items.length === 0 ? (
+                    <div className="text-gray-500 text-sm">
+                      ยังไม่มีที่อยู่ โปรดเพิ่มที่อยู่ก่อน
+                    </div>
+                  ) : (
+                    <ul className="flex flex-wrap gap-3">
+                      {address.items.map((it) => (
+                        <li
+                          key={it.addressId}
+                          className={
+                            "p-4 rounded-xl border transition " +
+                            (selectedAddressId === it.addressId
+                              ? "border-black ring-1 ring-black/10 bg-gray-50"
+                              : "border-gray-200 bg-white hover:border-gray-300")
+                          }
+                        >
+                          <label className="flex items-start gap-3 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="selectedAddress"
+                              className="mt-1 accent-black"
+                              checked={selectedAddressId === it.addressId}
+                              onChange={() =>
+                                setSelectedAddressId(it.addressId)
+                              }
+                            />
+                            <div className="min-w-0">
+                              <div className="font-medium text-black break-words">
+                                {it.firstname} {it.lastname} {it.phoneNumber}
+                              </div>
+                              <div className="text-sm text-gray-600 break-words">
+                                {it.name} {it.district} {it.province}{" "}
+                                {it.postalCode}
+                              </div>
                             </div>
-                            <h1 className='text-xl text-[#212529] text-left font-extrabold mt-7'>รูปแบบการจัดส่ง</h1>
-                            <ul className='flex flex-row space-x-4'>
-                                <li>
-                                    <div onClick={() => setActiveIndex(0)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 0 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
-                                        <h2 className='text-left text-black text-base absolute left-[60px] top-[460px]'>ส่งด้วย.....</h2>
-                                        <h2 className='text-left text-black text-base absolute left-64 top-[460px]'>0฿</h2>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div onClick={() => setActiveIndex(1)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 1 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
-                                        <h2 className='text-left text-black text-base absolute left-[333px] top-[460px]'>ส่งด้วย.....</h2>
-                                        <h2 className='text-left text-black text-base absolute left-64 top-[460px]'>0฿</h2>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div onClick={() => setActiveIndex(2)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[256px] h-[150px] text-center flex items-center justify-center ${activeIndex === 2 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
-                                        <h2 className='text-left text-black text-base absolute left-[606px] top-[460px]'>ส่งด้วย.....</h2>
-                                        <h2 className='text-left text-black text-base absolute left-64 top-[460px]'>0฿</h2>
-                                    </div>
-                                </li>
-                            </ul>
-                            <h1 className='text-xl text-[#212529] text-left font-extrabold mt-7'>ช่องทางการจ่ายเงิน</h1>
-                            <ul className='flex flex-row space-x-5'>
-                                <li>
-                                    <div onClick={() => setActiveIndex2(0)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[390px] h-[130px] text-center flex items-center justify-center flex-row ${activeIndex2 === 0 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div onClick={() => setActiveIndex2(1)} className= {`border border-gray-300 rounded-lg shadow hover:shadow-lg hover:shadow-gray-500 transition p-6 mt-7 w-[390px] h-[130px] text-center flex items-center justify-center flex-row ${activeIndex2 === 1 ? 'bg-[#feddd2]' : 'bg-[#edeef0]'}`}>
-                                    </div>
-                                </li>
-                            </ul>
+                          </label>
                         </li>
-                        <li>
-                            <div className='border border-gray-300 rounded-lg shadow hover:shadow-lg transition p-6 mt-7 w-[470px] h-[600px] text-center flex items-center justify-center'>
-                                <div className='w-full h-[490px] -mt-10 flex justify-center items-start'>
-                                    <ul className='flex flex-col space-y-12'>
-                                        {cart.items.length === 0 ? (
-                                            <li className="text-center text-gray-500 py-10">
-                                                ตะกร้าว่าง
-                                            </li> 
-                                            ) : cart.items.map(items => (
-                                            <li key={items.orderItemsId}>
-                                                <div className='flex items-start justify-start w-[420px] h-20 bg-gray-300 rounded-t-lg'>
-                                                    <img className=' w-24 h-20 ml-4' src= {getImageById(items.productId)} alt={items.name || ""} />
-                                                        <ul className='flex flex-col items-start justify-start'>
-                                                            <li className='flex flex-row'>
-                                                                <h3 className='mt-3 font-bold'>{items.name}</h3>
-                                                                <button className=' absolute right-20 mt-2' onClick={() => removeItem(items.orderItemsId)}>
-                                                                    <IoClose size={17}/>
-                                                                </button>  
-                                                            </li>
-                                                            <li>
-                                                                <h3 className='text-xs font-sans'>{items.productDescription}</h3>
-                                                            </li>
-                                                            <li className='flex flex-row space-x-3'>
-                                                                <h3 className='absolute right-36 text-xs font-semibold mt-1'>Quantity :</h3>
-                                                                <button className='absolute right-32' onClick={() => decQty(items.orderItemsId, items.qty)}> 
-                                                                    ‹ 
-                                                                </button>
-                                                                <div className='bg-white w-5 h-4 absolute right-[103.2px] mt-[5px]'>
-                                                                    <h2 className='flex justify-center items-center absolute  ml-[7px] text-xs'>{items.qty}</h2>
-                                                                </div>
-                                                                <button className='absolute right-[92px]' onClick={() => incQty(items.orderItemsId, items.qty)}> 
-                                                                    › 
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <div className='bg-gray-300 rounded-sm w-full h-4'>
-                                                                </div>
-                                                            </li>
-                                                            <li>
-                                                                <div className='bg-gray-400 rounded-b-lg w-[419.7px] h-7 mt-3 absolute right-[73.1px]'>
-                                                                    <h2 className='absolute right-5 mt-[4.2px] text-sm font-semibold '>฿{Number(items.subtotal).toLocaleString()}</h2>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                        <hr className="border-black border-t-2 absolute bottom-24 w-[418px] top-[680px]"/>
-                                                        <ul className='flex flex-row items-start'>
-                                                            <li>
-                                                                <h1 className='absolute bottom-[109px] left-[990px] text-xl font-bold'>฿{Number(cart.actualPrice || 0).toLocaleString()}</h1>
-                                                            </li>
-                                                            <li>
-                                                                <button type="button" onClick={Purchase} disabled={!selectedAddressId} title={!selectedAddressId ? "กรุณาเลือกที่อยู่ก่อน" : ""} className="w-24 bg-gray-500 rounded-lg hover:bg-gray-400 absolute left-[1290px] bottom-[110px] text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-500">
-                                                                    ชำระเงิน
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
+                      ))}
                     </ul>
+                  )}
                 </div>
+              </div>
+              <div className="bg-white/80 backdrop-blur border border-gray-200 rounded-2xl shadow-sm">
+                <div className="p-6">
+                  <h2 className="text-lg font-medium text-black mb-4">
+                    รูปแบบการจัดส่ง
+                  </h2>
+                  <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {shippingOptions.map((opt, idx) => {
+                      const active = activeIndex === idx;
+                      return (
+                        <li key={opt.key}>
+                          <button
+                            type="button"
+                            onClick={() => selectShipping(idx)}
+                            className={
+                              "w-full h-[140px] rounded-2xl border transition shadow-sm hover:shadow " +
+                              (active
+                                ? "bg-[#f5f5f7] border-black"
+                                : "bg-white border-gray-200")
+                            }
+                          >
+                            <div className="h-full w-full flex flex-col justify-center px-5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-base font-medium text-black">
+                                  {opt.label}
+                                </span>
+                                <span className="text-base font-semibold text-black">
+                                  {currency(opt.price)}
+                                </span>
+                              </div>
+                              <div className="mt-3 h-[6px] w-full rounded-full bg-gray-100 overflow-hidden">
+                                <div
+                                  className={
+                                    "h-full " +
+                                    (active ? "bg-black" : "bg-gray-300")
+                                  }
+                                  style={{ width: active ? "100%" : "30%" }}
+                                />
+                              </div>
+                            </div>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+              <div className="bg-white/80 backdrop-blur border border-gray-200 rounded-2xl shadow-sm">
+                <div className="p-6">
+                  <h2 className="text-lg font-medium text-black mb-4">
+                    ช่องทางการจ่ายเงิน
+                  </h2>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                      {
+                        id: 0,
+                        name: "ชำระผ่านบัตร/QR (จำลอง)",
+                        desc: "รองรับบัตรหลักและสแกนจ่าย",
+                      },
+                      {
+                        id: 1,
+                        name: "เก็บเงินปลายทาง (COD)",
+                        desc: "มีค่าธรรมเนียมตามผู้ให้บริการ",
+                      },
+                    ].map((m) => {
+                      const active = activeIndex2 === m.id;
+                      return (
+                        <li key={m.id}>
+                          <button
+                            type="button"
+                            onClick={() => setActiveIndex2(m.id)}
+                            className={
+                              "w-full h-[120px] rounded-2xl border text-left p-5 transition " +
+                              (active
+                                ? "bg-[#f5f5f7] border-black"
+                                : "bg-white border-gray-200 hover:border-gray-300")
+                            }
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="text-base font-medium text-black">
+                                  {m.name}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {m.desc}
+                                </div>
+                              </div>
+                              <div
+                                className={
+                                  "w-5 h-5 rounded-full border " +
+                                  (active
+                                    ? "bg-black border-black"
+                                    : "border-gray-300")
+                                }
+                              />
+                            </div>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </section>
+            <aside className="lg:col-span-1">
+              <div className="bg-white/80 backdrop-blur border border-gray-200 rounded-2xl shadow-sm p-6 sticky top-24">
+                <h3 className="text-lg font-medium text-black mb-4">
+                  สรุปรายการ
+                </h3>
+
+                {cart.items.length === 0 ? (
+                  <div className="text-center text-gray-500 border border-dashed rounded-xl p-8">
+                    ตะกร้าว่าง
+                  </div>
+                ) : (
+                  <>
+                    <ul className="space-y-4 max-h-[300px] overflow-auto pr-1">
+                      {cart.items.map((it) => (
+                        <li key={it.orderItemsId} className="flex gap-3">
+                          <img
+                            src={getImageById(it.productId)}
+                            alt={it.name || ""}
+                            className="w-16 h-16 rounded-xl border border-gray-200 object-cover"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="truncate">
+                                <div className="text-sm font-medium text-black truncate">
+                                  {it.name}
+                                </div>
+                                <div className="text-xs text-gray-500 line-clamp-2">
+                                  {it.productDescription}
+                                </div>
+                              </div>
+                              <button
+                                className="text-gray-500 hover:text-black"
+                                onClick={() => removeItem(it.orderItemsId)}
+                                aria-label="remove"
+                              >
+                                <IoClose size={18} />
+                              </button>
+                            </div>
+
+                            <div className="mt-2 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-600">
+                                  จำนวน
+                                </span>
+                                <button
+                                  className="w-6 h-6 rounded-full border border-gray-300 hover:bg-gray-100"
+                                  onClick={() =>
+                                    decQty(it.orderItemsId, it.qty)
+                                  }
+                                  aria-label="decrease"
+                                >
+                                  –
+                                </button>
+                                <span className="text-sm w-6 text-center">
+                                  {it.qty}
+                                </span>
+                                <button
+                                  className="w-6 h-6 rounded-full border border-gray-300 hover:bg-gray-100"
+                                  onClick={() =>
+                                    incQty(it.orderItemsId, it.qty)
+                                  }
+                                  aria-label="increase"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <div className="text-sm font-semibold">
+                                {currency(it.subtotal)}
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <hr className="my-4 border-gray-200" />
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">ราคาสินค้ารวม</span>
+                        <span className="font-medium">
+                          {currency(cart.actualPrice)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">ค่าจัดส่ง</span>
+                        <span className="font-medium">
+                          {currency(shippingPrice)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between text-base">
+                      <span className="font-semibold text-black">
+                        ยอดรวมทั้งสิ้น
+                      </span>
+                      <span className="font-extrabold text-black">
+                        {currency(grandTotal)}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={setIsConfirmOpen}
+                      disabled={!selectedAddressId || cart.items.length === 0}
+                      title={!selectedAddressId ? "กรุณาเลือกที่อยู่ก่อน" : ""}
+                      className="mt-5 w-full h-11 rounded-xl bg-black text-white font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      ชำระเงิน
+                    </button>
+                  </>
+                )}
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+      {isMenuRendered && (
+        <div
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setIsMenuOpen(false);
+          }}
+          className={
+            "fixed inset-0 bg-black/50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out " +
+            (isMenuVisible ? "opacity-100" : "opacity-0 pointer-events-none")
+          }
+        >
+          <div
+            onMouseDown={(e) => e.stopPropagation()}
+            className={
+              "bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out " +
+              (isMenuVisible ? "translate-x-0" : "-translate-x-full")
+            }
+          >
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="absolute top-6 left-6 text-gray-600 hover:text-black"
+            >
+              <IoClose size={24} />
+            </button>
+            <ul className="flex space-y-3 flex-col mt-16 ml-2 font-medium text-lg">
+              <li>
+                <button onClick={goToHome}>Homes</button>
+              </li>
+              <li>
+                <button onClick={goToSpeakers}>Speakers</button>
+              </li>
+              <li>
+                <button onClick={goToHeadphones}>Headphones</button>
+              </li>
+              <li>
+                <button onClick={goToSoundbars}>Soundbars</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+      {isAddressOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold">เพิ่มที่อยู่</h3>
+              <button
+                className="text-gray-500 hover:text-black"
+                onClick={() => setIsAddressOpen(false)}
+                aria-label="close"
+              >
+                <IoClose size={22} />
+              </button>
             </div>
-            {isMenuRendered &&(
-                <div onMouseDown={(e) => {if (e.target === e.currentTarget) setIsMenuOpen(false);}} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-start items-stretch z-50 transition-opacity duration-300 ease-in-out ${isMenuVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <div onMouseDown={(e) => e.stopPropagation()} className={`bg-white shadow-lg p-6 w-72 relative transform transition-transform duration-300 ease-in-out ${isMenuVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-                        <button onClick={() => setIsMenuOpen(false)} className='absolute top-6 left-9 text-gray-600 hover:text-black'>
-                            <IoClose size={24}/>
-                        </button>
-                        <ul className='flex space-y-3 flex-col mt-16 ml-2 font-semibold text-xl'>
-                            <li>
-                                <button onClick={goToHome}>Homes
-                                </button>
-                            </li>       
-                            <li>
-                                <button onClick={goToSpeakers}>Speakers
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={goToHeadphones}>Headphones
-                                </button>
-                            </li>
-                            <li>
-                                <button onClick={goToSoundbars}>Soundbars
-                                </button>
-                            </li>
-                        </ul>  
-                    </div>
+            <form className="p-6 space-y-4" onSubmit={handleAddress}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="ชื่อ (FirstName)"
+                  name="FirstName"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  value={form.FirstName}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="นามสกุล (LastName)"
+                  name="LastName"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  value={form.LastName}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="ที่อยู่ (AddressName)"
+                  name="AddressName"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10 sm:col-span-2"
+                  value={form.AddressName}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="จังหวัด (Province)"
+                  name="Province"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  value={form.Province}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="อำเภอ/เขต (District)"
+                  name="District"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  value={form.District}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  placeholder="รหัสไปรษณีย์ (PostalCode)"
+                  name="PostalCode"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  value={form.PostalCode}
+                  onChange={(e) => handleChangeDigitsPostalCode(e, 5)}
+                  required
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  placeholder="เบอร์โทร (PhoneNumber)"
+                  name="PhoneNumber"
+                  className="w-full border border-gray-300 rounded-xl px-3 h-11 focus:outline-none focus:ring-2 focus:ring-black/10"
+                  value={form.PhoneNumber}
+                  onChange={(e) => handleChangeDigitsPhoneNumber(e, 10)}
+                  required
+                />
+              </div>
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={closeAddressModal}
+                  className="px-4 h-11 rounded-xl border border-gray-300 hover:bg-gray-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 h-11 rounded-xl bg-black text-white hover:bg-gray-800"
+                >
+                  บันทึกที่อยู่
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {isConfirmOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setIsConfirmOpen(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setIsConfirmOpen(false);
+            if (e.key === "Enter") Purchase();
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        >
+          <div
+            className="relative w-[420px] max-w-[92vw] rounded-2xl bg-white dark:bg-neutral-900 dark:text-neutral-100 shadow-2xl border border-black/10 dark:border-white/10
+                 transform transition-all duration-200 ease-out animate-[fadeIn_.2s_ease-out]"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 pt-6 pb-3 border-b border-black/10 dark:border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 grid place-items-center text-xl">
+                  ⚠️
                 </div>
-            )}
-            {isAddressOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6 w-[800px] h-fit relative">
-                        <button onClick={() => setIsAddressOpen(false)} className="absolute top-3 right-3 text-gray-600 hover:text-black">
-                            <IoClose size={24} />
-                        </button>
-                        <h2 className="text-2xl font-bold mb-4 text-center">Add Address</h2>
-                        <form className='space-y-4 flex items-center justify-center flex-col'>
-                            <input type="text" placeholder="FirstName" name='FirstName' className="w-[500px] border p-2 rounded" value={form.FirstName} onChange={handleChange}/>
-                            <input type="text" placeholder="LastName" name='LastName' className="w-[500px] border p-2 rounded" value={form.LastName} onChange={handleChange}/>
-                            <input type="text" placeholder="AddressName" name='AddressName' className="w-[500px] border p-2 rounded" value={form.AddressName} onChange={handleChange}/>
-                            <input type="text" placeholder='Province' name='Province' className='w-[500px] border p-2 rounded' value={form.Province} onChange={handleChange}/>
-                            <input type="text" placeholder="District" name='District' className="w-[500px] border p-2 rounded" value={form.District} onChange={handleChange}/>
-                            <input type="text" pattern="[0-9]{5}" maxLength='5' placeholder="PostalCode" name='PostalCode' className="w-[500px] border p-2 rounded" value={form.PostalCode} onChange={handleChange}/>
-                            <input type="text" pattern="[0-9]{10}" maxLength='10' placeholder="PhoneNumber" name='PhoneNumber' className="w-[500px] border p-2 rounded" value={form.PhoneNumber} onChange={handleChange}/>
-                            <button className="w-[180px] bg-gray-600 text-white py-2 rounded hover:bg-blue-600 ml-80 mt-96" onClick={handleAddress}>
-                                Add
-                            </button>
-                            <p className='mt-auto font-light text-red-600 text-center'>{message}</p>
-                        </form>
-                    </div>
+                <div>
+                  <h3 className="text-lg font-extrabold leading-tight">
+                    ยืนยันการชำระเงิน
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-neutral-400">
+                    ตรวจสอบรายละเอียดก่อนกดยืนยัน
+                  </p>
                 </div>
-            )}
-        </main>
-    )
+              </div>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <div className="rounded-xl bg-gray-50 dark:bg-neutral-800/60 p-4 border border-gray-200 dark:border-neutral-700">
+                <ul className="text-sm space-y-2">
+                  <li className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-neutral-300">
+                      ค่าสินค้า
+                    </span>
+                    <span className="font-semibold">
+                      ฿{Number(cart?.actualPrice ?? 0).toLocaleString()}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-neutral-300">
+                      ค่าจัดส่ง
+                    </span>
+                    <span className="font-semibold">
+                      ฿{Number(shippingPrice ?? 0).toLocaleString()}
+                    </span>
+                  </li>
+                  <li className="border-t border-dashed border-black/10 dark:border-white/10 pt-2 mt-1 flex items-center justify-between">
+                    <span className="font-semibold">ยอดสุทธิ</span>
+                    <span className="text-lg font-extrabold">
+                      ฿
+                      {Number(
+                        (cart?.actualPrice ?? 0) + (shippingPrice ?? 0)
+                      ).toLocaleString()}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+              {selectedAddressId && (
+                <div className="rounded-xl bg-gray-50 dark:bg-neutral-800/60 p-4 border border-gray-200 dark:border-neutral-700">
+                  <div className="text-xs font-semibold text-gray-500 mb-1">
+                    ที่อยู่จัดส่ง
+                  </div>
+                  <div className="text-sm">
+                    {address?.items?.find(
+                      (a) => a.addressId === selectedAddressId
+                    ) ? (
+                      (() => {
+                        const a = address.items.find(
+                          (a) => a.addressId === selectedAddressId
+                        );
+                        return (
+                          <>
+                            <div className="font-medium">
+                              {a.firstname} {a.lastname} • {a.phoneNumber}
+                            </div>
+                            <div className="text-gray-600 dark:text-neutral-300">
+                              {a.name} {a.district} {a.province} {a.postalCode}
+                            </div>
+                          </>
+                        );
+                      })()
+                    ) : (
+                      <div className="text-gray-500">—</div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-gray-500 dark:text-neutral-400">
+                เมื่อกดยืนยัน ระบบจะตัดยอดและสร้างคำสั่งซื้อให้คุณทันที
+              </p>
+            </div>
+            <div className="px-6 pb-6 pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setIsConfirmOpen(false)}
+                className="h-10 px-4 rounded-xl border border-gray-300 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-800 transition text-sm font-medium"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={Purchase}
+                className="h-10 px-5 rounded-xl bg-black text-white hover:bg-gray-800 transition text-sm font-semibold"
+              >
+                ยืนยันการชำระเงิน
+              </button>
+            </div>
+            <button
+              onClick={() => setIsConfirmOpen(false)}
+              aria-label="ปิด"
+              className="absolute top-3 right-3 p-2 rounded-lg text-gray-500 hover:text-black hover:bg-gray-100 dark:hover:bg-neutral-800"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </main>
+  );
 }
 
-export default Address
+export default Address;
